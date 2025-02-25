@@ -12,12 +12,43 @@
     {
       "src": "public/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "css/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "js/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.{jpg,jpeg,png,gif,ico,webp,mp4}",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/server.js"
+      "dest": "/server/server.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/about",
+      "dest": "/about.html"
+    },
+    {
+      "src": "/simulation",
+      "dest": "/simulation.html"
+    },
+    {
+      "src": "/documentation",
+      "dest": "/documentation.html"
     },
     {
       "src": "/(.*)",
