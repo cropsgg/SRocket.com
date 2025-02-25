@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation - SRocket Web</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css" id="dark-mode-stylesheet" disabled>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="jain.webp" alt="SRocket Logo">
+            <h1>SRocket Web</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="simulation.html" class="active">Simulation</a></li>
+                <li><a href="documentation.html">Documentation</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <button id="dark-mode-toggle" aria-label="Toggle dark mode">
+            <span class="icon">🌙</span>
+        </button>
+        <button id="mobile-menu-toggle" class="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <main class="simulation-container">
+        <div class="input-column">
+            <section class="unit-selection">
+                <h2>Units</h2>
+                <div class="toggle-container">
+                    <label class="toggle">
+                        <input type="checkbox" id="unit-toggle">
+                        <span class="slider"></span>
+                        <span class="toggle-label metric">Metric</span>
+                        <span class="toggle-label imperial">Imperial</span>
+                    </label>
+                </div>
+            </section>
+
+            <section class="propellant-editor">
+                <h2>Propellant Properties</h2>
+                <form id="propellant-form">
+                    <div class="form-group">
+                        <label for="propellant-selector">Propellant</label>
+                        <select id="propellant-selector" name="propellant-selector">
+                            <option value="">-- Select a propellant --</option>
+                            <optgroup label="Standard Propellants">
+                                <option value="knsb">KNSB - Potassium Nitrate/Sorbitol</option>
+                                <option value="knsu">KNSU - Potassium Nitrate/Sucrose</option>
+                                <option value="kndx">KNDX - Potassium Nitrate/Dextrose</option>
+                                <option value="mit-ocean">MIT - Ocean Water (AP/HTPB/Al)</option>
+                                <option value="rcs-white">RCS - White Lightning (AP/HTPB/Al)</option>
+                                <option value="rcs-blue">RCS - Blue Thunder (AP/HTPB/Al/Cu)</option>
+                            </optgroup>
+                            <optgroup label="Custom Propellants" id="custom-propellant-options">
+                                <!-- Custom propellants will be added here dynamically -->
+                            </optgroup>
+                            <option value="custom">Custom Propellant...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="propellant-name">Name</label>
+                        <input type="text" id="propellant-name" name="propellant-name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="propellant-density">Density (<span class="unit-label">kg/m³</span>)</label>
+                        <input type="number" id="propellant-density" name="propellant-density" step="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="burn-rate-coefficient">Burn Rate Coefficient (a)</label>
+                        <input type="number" id="burn-rate-coefficient" name="burn-rate-coefficient" step="0.0001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="burn-rate-exponent">Burn Rate Exponent (n)</label>
+                        <input type="number" id="burn-rate-exponent" name="burn-rate-exponent" step="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="specific-heat-ratio">Specific Heat Ratio (gamma)</label>
+                        <input type="number" id="specific-heat-ratio" name="specific-heat-ratio" step="0.01" required>
+                    </div>
+
+                    <div class="form-group propellant-actions">
+                        <button type="button" id="edit-propellant" class="secondary-button">Edit Propellant</button>
+                        <button type="button" id="manage-propellants" class="secondary-button">Manage Propellants</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="grain-geometry">
+                <h2>Grain Geometry</h2>
+                <div class="form-group">
+                    <label for="grain-shape">Shape</label>
+                    <select id="grain-shape" name="grain-shape">
+                        <option value="bates">BATES</option>
+                        <option value="finocyl">Finocyl</option>
+                        <option value="star">Star</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+
+                <div id="bates-params" class="shape-params">
+                    <div class="form-group">
+                        <label for="bates-outer-diameter">Outer Diameter (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="bates-outer-diameter" name="bates-outer-diameter" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bates-inner-diameter">Inner Diameter (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="bates-inner-diameter" name="bates-inner-diameter" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bates-length">Length (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="bates-length" name="bates-length" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bates-segments">Number of Segments</label>
+                        <input type="number" id="bates-segments" name="bates-segments" min="1" step="1" required>
+                    </div>
+                </div>
+
+                <div id="finocyl-parameters" class="grain-parameter-group" style="display: none;">
+                    <div class="form-group">
+                        <label for="finocyl-outer-diameter">Outer Diameter (mm)</label>
+                        <input type="number" id="finocyl-outer-diameter" min="10" max="1000" step="1" value="75">
+                    </div>
+                    <div class="form-group">
+                        <label for="finocyl-inner-diameter">Inner Diameter (mm)</label>
+                        <input type="number" id="finocyl-inner-diameter" min="5" max="500" step="1" value="25">
+                    </div>
+                    <div class="form-group">
+                        <label for="finocyl-length">Grain Length (mm)</label>
+                        <input type="number" id="finocyl-length" min="10" max="1000" step="1" value="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="finocyl-fin-count">Number of Fins</label>
+                        <input type="number" id="finocyl-fin-count" min="3" max="12" step="1" value="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="finocyl-fin-height">Fin Height (mm)</label>
+                        <input type="number" id="finocyl-fin-height" min="1" max="100" step="1" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="finocyl-fin-width">Fin Width (mm)</label>
+                        <input type="number" id="finocyl-fin-width" min="1" max="50" step="1" value="10">
+                    </div>
+                </div>
+
+                <div id="star-params" class="shape-params hidden">
+                    <!-- Star specific parameters -->
+                </div>
+
+                <div id="custom-params" class="shape-params hidden">
+                    <div class="form-group">
+                        <label for="dxf-upload">Upload DXF File</label>
+                        <input type="file" id="dxf-upload" name="dxf-upload" accept=".dxf">
+                    </div>
+                </div>
+            </section>
+
+            <section class="nozzle-specs">
+                <h2>Nozzle Specifications</h2>
+                <div class="form-group">
+                    <label for="throat-diameter">Throat Diameter (<span class="unit-label">mm</span>)</label>
+                    <input type="number" id="throat-diameter" name="throat-diameter" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="exit-diameter">Exit Diameter (<span class="unit-label">mm</span>)</label>
+                    <input type="number" id="exit-diameter" name="exit-diameter" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="expansion-ratio">Expansion Ratio</label>
+                    <input type="number" id="expansion-ratio" name="expansion-ratio" step="0.01" readonly>
+                </div>
+            </section>
+
+            <section class="simulation-controls">
+                <h2>Simulation Controls</h2>
+                <div class="button-group">
+                    <button id="run-simulation" class="primary-button">Run Simulation</button>
+                    <button id="pause-simulation" class="secondary-button" disabled>Pause</button>
+                    <button id="reset-simulation" class="secondary-button" disabled>Reset</button>
+                </div>
+                <details class="advanced-settings">
+                    <summary>Advanced Settings</summary>
+                    <div class="form-group">
+                        <label for="time-step">Time Step (s)</label>
+                        <input type="number" id="time-step" name="time-step" step="0.001" value="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="ambient-pressure">Ambient Pressure (atm)</label>
+                        <input type="number" id="ambient-pressure" name="ambient-pressure" step="0.01" value="1.0">
+                    </div>
+                </details>
+            </section>
+        </div>
+
+        <div class="results-column">
+            <section class="results-display">
+                <h2>Simulation Results</h2>
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="thrust-curve">Thrust Curve</button>
+                    <button class="tab-button" data-tab="pressure-curve">Pressure Curve</button>
+                    <button class="tab-button" data-tab="grain-visualization">Grain Visualization</button>
+                    <button class="tab-button" data-tab="summary">Summary</button>
+                </div>
+                
+                <div id="thrust-curve" class="tab-content active">
+                    <div class="graph-container">
+                        <canvas id="thrust-graph"></canvas>
+                    </div>
+                </div>
+                
+                <div id="pressure-curve" class="tab-content">
+                    <div class="graph-container">
+                        <canvas id="pressure-graph"></canvas>
+                    </div>
+                </div>
+                
+                <div id="grain-visualization" class="tab-content">
+                    <div class="visualization-container">
+                        <canvas id="grain-canvas"></canvas>
+                        <div class="time-slider">
+                            <input type="range" id="time-slider" min="0" max="100" value="0">
+                            <span id="time-display">0.00s</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="summary" class="tab-content">
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <h3>Max Thrust</h3>
+                            <p id="max-thrust">-- <span class="unit-label">N</span></p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Total Impulse</h3>
+                            <p id="total-impulse">-- <span class="unit-label">Ns</span></p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Burn Time</h3>
+                            <p id="burn-time">-- s</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Max Pressure</h3>
+                            <p id="max-pressure">-- <span class="unit-label">MPa</span></p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>ISP</h3>
+                            <p id="isp">-- s</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Propellant Mass</h3>
+                            <p id="propellant-mass">-- <span class="unit-label">kg</span></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="file-operations">
+                <div class="button-group">
+                    <button id="save-simulation" class="secondary-button">Save Simulation</button>
+                    <button id="load-simulation" class="secondary-button">Load Simulation</button>
+                    <button id="export-results" class="secondary-button" disabled>Export Results</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 SRocket Web. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Use</a>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/simulation.js"></script>
+    <script src="js/graphs.js"></script>
+    <script src="js/preferences.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="js/grain-visualization.js"></script>
+
+    <div class="help-panel">
+        <button class="help-toggle" aria-label="Toggle help">
+            <span class="icon">?</span>
+        </button>
+        <div class="help-content">
+            <h3>Quick Help</h3>
+            <div class="help-item">
+                <h4>Propellant Properties</h4>
+                <p>Enter the physical and chemical properties of your propellant. These values determine how the propellant burns and generates thrust.</p>
+            </div>
+            <div class="help-item">
+                <h4>Grain Geometry</h4>
+                <p>Select and configure the shape of your propellant grain. The geometry affects the burn surface area and thrust profile.</p>
+            </div>
+            <div class="help-item">
+                <h4>Nozzle Design</h4>
+                <p>Configure your nozzle dimensions. The nozzle converts high-pressure gases into high-velocity exhaust to generate thrust.</p>
+            </div>
+            <div class="help-item">
+                <h4>Need More Help?</h4>
+                <p><a href="documentation.html" class="text-link">Visit the documentation</a> for detailed explanations and tutorials.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

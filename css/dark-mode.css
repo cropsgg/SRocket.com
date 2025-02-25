@@ -1,0 +1,43 @@
+:root {
+    --primary-color: #66CCFF;
+    --secondary-color: #003366;
+    --background-color: #222222;
+    --content-color: #333333;
+    --text-color: #F0F0F0;
+    --border-color: #444444;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+section {
+    background-color: var(--content-color);
+}
+
+input, select, textarea {
+    background-color: #444444;
+    color: var(--text-color);
+    border-color: #555555;
+}
+
+.summary-item {
+    background-color: #2a2a2a;
+}
+
+.summary-item p {
+    color: var(--primary-color);
+}
+
+.tab-button {
+    color: #cccccc;
+}
+
+.tab-button.active {
+    color: var(--primary-color);
+}
+
+.advanced-settings {
+    border-color: #555555;
+} 

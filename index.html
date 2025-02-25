@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRocket Web - Rocket Motor Simulation Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/dark-mode.css" id="dark-mode-stylesheet" disabled>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="jain.webp" alt="SRocket Logo">
+            <h1>SRocket Web</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="simulation.html">Simulation</a></li>
+                <li><a href="documentation.html">Documentation</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <button id="dark-mode-toggle" aria-label="Toggle dark mode">
+            <span class="icon">🌙</span>
+        </button>
+        <button id="mobile-menu-toggle" class="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Simulate rocket motor performance with precision</h1>
+                <p>SRocket Web is a powerful, easy-to-use tool for designing and analyzing solid rocket motors</p>
+                <a href="simulation.html" class="cta-button">Start Simulation</a>
+            </div>
+            <div class="hero-video-container">
+                <div class="hero-video">
+                    <video autoplay muted loop playsinline>
+                        <source src="rock.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Performance Analysis</h3>
+                    <p>Calculate thrust curves, chamber pressure, and total impulse with high accuracy</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Grain Regression</h3>
+                    <p>Visualize how your grain geometry changes during motor burn</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Works Offline</h3>
+                    <p>Design and analyze motors without an internet connection</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3>Save & Export</h3>
+                    <p>Save your designs and export results for further analysis</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="how-it-works">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Define Propellant</h3>
+                    <p>Enter propellant properties including density, burn rate coefficient, and specific heat ratio</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Design Grain Geometry</h3>
+                    <p>Choose from BATES, Finocyl, Star, or custom grain designs and set dimensions</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Configure Nozzle</h3>
+                    <p>Specify throat and exit diameters to optimize motor performance</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Run Simulation</h3>
+                    <p>Calculate performance and visualize results with interactive graphs</p>
+                </div>
+            </div>
+            <div class="cta-container">
+                <a href="simulation.html" class="secondary-button">Try It Now</a>
+                <a href="documentation.html" class="text-link">Read the Documentation</a>
+            </div>
+        </section>
+
+        <section class="use-cases">
+            <h2>Who Uses SRocket Web</h2>
+            <div class="use-case-grid">
+                <div class="use-case-card">
+                    <h3>Hobbyists</h3>
+                    <p>Design and optimize motors for high-power rocketry projects</p>
+                </div>
+                <div class="use-case-card">
+                    <h3>Students</h3>
+                    <p>Learn about rocket propulsion through hands-on simulation</p>
+                </div>
+                <div class="use-case-card">
+                    <h3>Researchers</h3>
+                    <p>Quickly test new propellant formulations and grain designs</p>
+                </div>
+                <div class="use-case-card">
+                    <h3>Educators</h3>
+                    <p>Demonstrate propulsion concepts with interactive visualizations</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 SRocket Web. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Use</a>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

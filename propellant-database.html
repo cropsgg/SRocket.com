@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propellant Database - SRocket Web</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/propellant.css">
+    <link rel="stylesheet" href="css/dark-mode.css" id="dark-mode-stylesheet" disabled>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="jain.webp" alt="SRocket Logo">
+            <h1>SRocket Web</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="simulation.html">Simulation</a></li>
+                <li><a href="propellant-database.html" class="active">Propellants</a></li>
+                <li><a href="documentation.html">Documentation</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <button id="dark-mode-toggle" aria-label="Toggle dark mode">
+            <span class="icon">🌙</span>
+        </button>
+        <button id="mobile-menu-toggle" class="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <main>
+        <section class="propellant-header">
+            <h1>Propellant Database</h1>
+            <p>Choose from common propellant formulations or create your own custom propellant</p>
+            <div class="propellant-actions">
+                <button id="new-propellant" class="primary-button">
+                    <span class="icon">+</span> New Propellant
+                </button>
+                <button id="import-propellant" class="secondary-button">
+                    <span class="icon">↑</span> Import
+                </button>
+            </div>
+        </section>
+
+        <section class="propellant-library">
+            <h2>Standard Propellants</h2>
+            <div class="propellant-grid">
+                <!-- KNSB -->
+                <div class="propellant-card" data-id="knsb">
+                    <div class="propellant-header">
+                        <h3>KNSB</h3>
+                        <span class="propellant-tag amateur">Amateur</span>
+                    </div>
+                    <div class="propellant-details">
+                        <p class="propellant-description">Potassium Nitrate/Sorbitol (65/35)</p>
+                        <div class="propellant-properties">
+                            <div class="property">
+                                <span class="property-name">Density:</span>
+                                <span class="property-value">1.841 g/cm³</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Burn Rate Coef:</span>
+                                <span class="property-value">8.26 mm/s at 10 bar</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Burn Rate Exp:</span>
+                                <span class="property-value">0.319</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Isp:</span>
+                                <span class="property-value">~130 s</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="propellant-actions">
+                        <button class="use-propellant">Use</button>
+                        <button class="view-details">Details</button>
+                    </div>
+                </div>
+
+                <!-- KNSU -->
+                <div class="propellant-card" data-id="knsu">
+                    <div class="propellant-header">
+                        <h3>KNSU</h3>
+                        <span class="propellant-tag amateur">Amateur</span>
+                    </div>
+                    <div class="propellant-details">
+                        <p class="propellant-description">Potassium Nitrate/Sucrose (65/35)</p>
+                        <div class="propellant-properties">
+                            <div class="property">
+                                <span class="property-name">Density:</span>
+                                <span class="property-value">1.889 g/cm³</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Burn Rate Coef:</span>
+                                <span class="property-value">8.13 mm/s at 10 bar</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Burn Rate Exp:</span>
+                                <span class="property-value">0.351</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Isp:</span>
+                                <span class="property-value">~125 s</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="propellant-actions">
+                        <button class="use-propellant">Use</button>
+                        <button class="view-details">Details</button>
+                    </div>
+                </div>
+
+                <!-- KNDX -->
+                <div class="propellant-card" data-id="kndx">
+                    <div class="propellant-header">
+                        <h3>KNDX</h3>
+                        <span class="propellant-tag amateur">Amateur</span>
+                    </div>
+                    <div class="propellant-details">
+                        <p class="propellant-description">Potassium Nitrate/Dextrose (65/35)</p>
+                        <div class="propellant-properties">
+                            <div class="property">
+                                <span class="property-name">Density:</span>
+                                <span class="property-value">1.879 g/cm³</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Burn Rate Coef:</span>
+                                <span class="property-value">8.85 mm/s at 10 bar</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Burn Rate Exp:</span>
+                                <span class="property-value">0.322</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Isp:</span>
+                                <span class="property-value">~127 s</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="propellant-actions">
+                        <button class="use-propellant">Use</button>
+                        <button class="view-details">Details</button>
+                    </div>
+                </div>
+
+                <!-- MIT - Ocean Water -->
+                <div class="propellant-card" data-id="mit-ocean">
+                    <div class="propellant-header">
+                        <h3>MIT - Ocean Water</h3>
+                        <span class="propellant-tag advanced">Advanced</span>
+                    </div>
+                    <div class="propellant-details">
+                        <p class="propellant-description">AP/HTPB/Al (68/20/12)</p>
+                        <div class="propellant-properties">
+                            <div class="property">
+                                <span class="property-name">Density:</span>
+                                <span class="property-value">1.72 g/cm³</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Burn Rate Coef:</span>
+                                <span class="property-value">4.83 mm/s at 10 bar</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Burn Rate Exp:</span>
+                                <span class="property-value">0.36</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Isp:</span>
+                                <span class="property-value">~240 s</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="propellant-actions">
+                        <button class="use-propellant">Use</button>
+                        <button class="view-details">Details</button>
+                    </div>
+                </div>
+
+                <!-- RCS - White Lightning -->
+                <div class="propellant-card" data-id="rcs-white">
+                    <div class="propellant-header">
+                        <h3>RCS - White Lightning</h3>
+                        <span class="propellant-tag commercial">Commercial</span>
+                    </div>
+                    <div class="propellant-details">
+                        <p class="propellant-description">AP/HTPB/Al (70/15/15)</p>
+                        <div class="propellant-properties">
+                            <div class="property">
+                                <span class="property-name">Density:</span>
+                                <span class="property-value">1.76 g/cm³</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Burn Rate Coef:</span>
+                                <span class="property-value">5.13 mm/s at 10 bar</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Burn Rate Exp:</span>
+                                <span class="property-value">0.32</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Isp:</span>
+                                <span class="property-value">~245 s</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="propellant-actions">
+                        <button class="use-propellant">Use</button>
+                        <button class="view-details">Details</button>
+                    </div>
+                </div>
+
+                <!-- RCS - Blue Thunder -->
+                <div class="propellant-card" data-id="rcs-blue">
+                    <div class="propellant-header">
+                        <h3>RCS - Blue Thunder</h3>
+                        <span class="propellant-tag commercial">Commercial</span>
+                    </div>
+                    <div class="propellant-details">
+                        <p class="propellant-description">AP/HTPB/Al/Cu compounds (68/14/16/2)</p>
+                        <div class="propellant-properties">
+                            <div class="property">
+                                <span class="property-name">Density:</span>
+                                <span class="property-value">1.78 g/cm³</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Burn Rate Coef:</span>
+                                <span class="property-value">7.40 mm/s at 10 bar</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Burn Rate Exp:</span>
+                                <span class="property-value">0.38</span>
+                            </div>
+                            <div class="property">
+                                <span class="property-name">Isp:</span>
+                                <span class="property-value">~250 s</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="propellant-actions">
+                        <button class="use-propellant">Use</button>
+                        <button class="view-details">Details</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="propellant-library">
+            <h2>Custom Propellants</h2>
+            <div id="custom-propellants" class="propellant-grid">
+                <!-- Custom propellants will be added here dynamically -->
+                <div class="empty-state">
+                    <p>No custom propellants yet. Click "New Propellant" to create one.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Propellant Editor Modal -->
+    <div id="propellant-editor-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Propellant Editor</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="propellant-form">
+                    <div class="form-group">
+                        <label for="propellant-name">Name:</label>
+                        <input type="text" id="propellant-name" required placeholder="New Propellant">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="propellant-density">Density (g/cm³):</label>
+                        <input type="number" id="propellant-density" step="0.001" min="0.1" max="3.0" required>
+                    </div>
+                    
+                    <div class="form-tabs">
+                        <div class="tab-nav">
+                            <button type="button" class="tab-button active" data-tab="basic">Basic Properties</button>
+                            <button type="button" class="tab-button" data-tab="advanced">Advanced Properties</button>
+                            <button type="button" class="tab-button" data-tab="pressure-ranges">Pressure Ranges</button>
+                        </div>
+                        
+                        <div class="tab-content active" data-tab="basic">
+                            <div class="form-group">
+                                <label for="burn-rate-coefficient">Burn Rate Coefficient (mm/s at reference pressure):</label>
+                                <input type="number" id="burn-rate-coefficient" step="0.01" min="0.1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="burn-rate-exponent">Burn Rate Exponent:</label>
+                                <input type="number" id="burn-rate-exponent" step="0.001" min="0" max="1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="reference-pressure">Reference Pressure (MPa):</label>
+                                <input type="number" id="reference-pressure" step="0.1" min="0.1" value="6.9" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="specific-heat-ratio">Specific Heat Ratio (gamma):</label>
+                                <input type="number" id="specific-heat-ratio" step="0.01" min="1.1" max="1.4" required>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-content" data-tab="advanced">
+                            <div class="form-group">
+                                <label for="combustion-temperature">Combustion Temperature (K):</label>
+                                <input type="number" id="combustion-temperature" step="1" min="500" max="4000" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="exhaust-molar-mass">Exhaust Molar Mass (g/mol):</label>
+                                <input type="number" id="exhaust-molar-mass" step="0.1" min="10" max="50" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="propellant-composition">Composition (optional):</label>
+                                <textarea id="propellant-composition" rows="3" placeholder="e.g., KNO3/Sorbitol 65/35"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="propellant-notes">Notes (optional):</label>
+                                <textarea id="propellant-notes" rows="3" placeholder="Add any notes about this propellant"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-content" data-tab="pressure-ranges">
+                            <div class="pressure-ranges">
+                                <div class="pressure-range">
+                                    <h4>Pressure Range #1</h4>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="min-pressure-1">Minimum Pressure (MPa):</label>
+                                            <input type="number" id="min-pressure-1" step="0.1" min="0" value="0" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="max-pressure-1">Maximum Pressure (MPa):</label>
+                                            <input type="number" id="max-pressure-1" step="0.1" min="0" value="10" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="burn-rate-coef-1">Burn Rate Coefficient:</label>
+                                            <input type="number" id="burn-rate-coef-1" step="0.01" min="0" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="burn-rate-exp-1">Burn Rate Exponent:</label>
+                                            <input type="number" id="burn-rate-exp-1" step="0.001" min="0" max="1" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" id="add-pressure-range" class="secondary-button">
+                                    <span class="icon">+</span> Add Pressure Range
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="cancel-propellant" class="text-button">Cancel</button>
+                        <button type="submit" id="save-propellant" class="primary-button">Save Propellant</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 SRocket Web. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Use</a>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/propellant-database.js"></script>
+</body>
+</html> 

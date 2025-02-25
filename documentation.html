@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - SRocket Web</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/documentation.css">
+    <link rel="stylesheet" href="css/dark-mode.css" id="dark-mode-stylesheet" disabled>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="jain.webp" alt="SRocket Logo">
+            <h1>SRocket Web</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="simulation.html">Simulation</a></li>
+                <li><a href="documentation.html" class="active">Documentation</a></li>
+                <li><a href="about.html">About</a></li>
+            </ul>
+        </nav>
+        <button id="dark-mode-toggle" aria-label="Toggle dark mode">
+            <span class="icon">🌙</span>
+        </button>
+        <button id="mobile-menu-toggle" class="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <main class="documentation-container">
+        <aside class="sidebar">
+            <div class="search-container">
+                <input type="text" id="doc-search" placeholder="Search documentation...">
+            </div>
+            <nav class="doc-nav">
+                <h3>Getting Started</h3>
+                <ul>
+                    <li><a href="#introduction" class="active">Introduction</a></li>
+                    <li><a href="#quick-start">Quick Start Guide</a></li>
+                    <li><a href="#user-interface">User Interface</a></li>
+                </ul>
+                
+                <h3>Propellant</h3>
+                <ul>
+                    <li><a href="#propellant-basics">Propellant Basics</a></li>
+                    <li><a href="#burn-rate">Burn Rate Parameters</a></li>
+                    <li><a href="#common-propellants">Common Propellants</a></li>
+                </ul>
+                
+                <h3>Grain Design</h3>
+                <ul>
+                    <li><a href="#grain-types">Grain Types</a></li>
+                    <li><a href="#bates">BATES Grains</a></li>
+                    <li><a href="#finocyl">Finocyl Grains</a></li>
+                    <li><a href="#star">Star Grains</a></li>
+                    <li><a href="#custom">Custom Grains</a></li>
+                </ul>
+                
+                <h3>Nozzle Design</h3>
+                <ul>
+                    <li><a href="#nozzle-basics">Nozzle Basics</a></li>
+                    <li><a href="#expansion-ratio">Expansion Ratio</a></li>
+                    <li><a href="#nozzle-efficiency">Nozzle Efficiency</a></li>
+                </ul>
+                
+                <h3>Simulation</h3>
+                <ul>
+                    <li><a href="#running-sim">Running a Simulation</a></li>
+                    <li><a href="#interpreting-results">Interpreting Results</a></li>
+                    <li><a href="#advanced-settings">Advanced Settings</a></li>
+                </ul>
+                
+                <h3>Reference</h3>
+                <ul>
+                    <li><a href="#equations">Equations</a></li>
+                    <li><a href="#glossary">Glossary</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <div class="content">
+            <section id="introduction">
+                <h1>Introduction to SRocket Web</h1>
+                <p class="lead">SRocket Web is a simulation tool for solid rocket motor design and analysis.</p>
+                
+                <p>This application allows you to design and analyze solid rocket motors by simulating their performance based on propellant properties, grain geometry, and nozzle specifications. The simulation provides detailed results including thrust curves, pressure profiles, and grain regression visualization.</p>
+                
+                <h2>Key Features</h2>
+                <ul>
+                    <li><strong>Propellant Definition:</strong> Define custom propellant properties or use common presets</li>
+                    <li><strong>Grain Design:</strong> Choose from multiple grain geometries including BATES, Finocyl, and Star</li>
+                    <li><strong>Performance Analysis:</strong> Calculate thrust, pressure, impulse, and other key metrics</li>
+                    <li><strong>Visualization:</strong> View interactive graphs and grain regression animations</li>
+                    <li><strong>Save & Export:</strong> Save your designs and export results for further analysis</li>
+                </ul>
+                
+                <div class="note">
+                    <h3>Note</h3>
+                    <p>SRocket Web is a simulation tool only. Always follow proper safety procedures and regulations when designing, building, or testing actual rocket motors.</p>
+                </div>
+                
+                <h2>How Solid Rocket Motors Work</h2>
+                <p>Solid rocket motors generate thrust by burning solid propellant inside a combustion chamber. As the propellant burns, it produces hot gases that are accelerated through a nozzle to produce thrust.</p>
+                
+                <p>The key components of a solid rocket motor include:</p>
+                
+                <ul>
+                    <li><strong>Propellant:</strong> The solid fuel and oxidizer mixture that burns to produce hot gases</li>
+                    <li><strong>Grain:</strong> The shaped propellant charge with a specific geometry that affects the thrust profile</li>
+                    <li><strong>Combustion Chamber:</strong> The pressure vessel that contains the burning propellant</li>
+                    <li><strong>Nozzle:</strong> The shaped exit that accelerates the hot gases to produce thrust</li>
+                </ul>
+                
+                <p>The performance of a solid rocket motor depends on many factors, including:</p>
+                
+                <ul>
+                    <li>Propellant composition and properties</li>
+                    <li>Grain geometry and dimensions</li>
+                    <li>Nozzle design and expansion ratio</li>
+                    <li>Operating conditions (ambient pressure, temperature, etc.)</li>
+                </ul>
+                
+                <p>SRocket Web helps you explore how these factors affect motor performance through simulation.</p>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 SRocket Web. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Use</a>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/documentation.js"></script>
+</body>
+</html>
