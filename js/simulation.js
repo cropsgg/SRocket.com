@@ -882,6 +882,24 @@ document.addEventListener('DOMContentLoaded', function() {
             (isImperial ? 'lbf·s' : 'Ns');
         document.getElementById('burn-time').textContent = data.summary.burnTime.toFixed(2) + ' s';
         
+        // Update values in the simulation-data tab
+        document.getElementById('total-impulse-value').textContent = data.summary.totalImpulse.toFixed(1) + ' ' + 
+            (isImperial ? 'lbf·s' : 'Ns');
+        document.getElementById('specific-impulse-value').textContent = data.summary.isp.toFixed(1) + ' s';
+        document.getElementById('max-thrust-value').textContent = data.summary.maxThrust.toFixed(1) + ' ' + 
+            (isImperial ? 'lbf' : 'N');
+        document.getElementById('avg-thrust-value').textContent = data.summary.avgThrust.toFixed(1) + ' ' + 
+            (isImperial ? 'lbf' : 'N');
+        document.getElementById('burn-time-value').textContent = data.summary.burnTime.toFixed(2) + ' s';
+            
+        // Update design parameters in the simulation-data tab
+        document.getElementById('motor-class-value').textContent = data.summary.motorClass || '-';
+        const propellantMass = isImperial ? data.summary.propellantMass * kgToLb : data.summary.propellantMass;
+        document.getElementById('propellant-mass-value').textContent = propellantMass.toFixed(3) + ' ' + 
+            (isImperial ? 'lb' : 'kg');
+        document.getElementById('grain-shape-value').textContent = data.inputs.grainType || '-';
+        document.getElementById('nozzle-ratio-value').textContent = data.inputs.expansionRatio.toFixed(1);
+        
         // Pressure
         const maxPressure = isImperial ? data.summary.maxPressure * mpaToPs : data.summary.maxPressure;
         document.getElementById('max-pressure').textContent = maxPressure.toFixed(2) + ' ' + 
@@ -890,14 +908,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const avgPressure = isImperial ? data.summary.avgPressure * mpaToPs : data.summary.avgPressure;
         document.getElementById('avg-pressure').textContent = avgPressure.toFixed(2) + ' ' + 
             (isImperial ? 'psi' : 'MPa');
+            
+        // Also update the chamber pressure in the design parameters
+        document.getElementById('chamber-pressure-value').textContent = avgPressure.toFixed(2) + ' ' + 
+            (isImperial ? 'psi' : 'MPa');
         
         document.getElementById('isp').textContent = data.summary.isp.toFixed(1) + ' s';
         
         // Mass and dimensions
-        const propellantMass = isImperial ? data.summary.propellantMass * kgToLb : data.summary.propellantMass;
-        document.getElementById('propellant-mass').textContent = propellantMass.toFixed(3) + ' ' + 
-            (isImperial ? 'lb' : 'kg');
-            
         const propellantLength = isImperial ? data.summary.propellantLength * mmToIn : data.summary.propellantLength;
         document.getElementById('propellant-length').textContent = propellantLength.toFixed(1) + ' ' + 
             (isImperial ? 'in' : 'mm');
@@ -1405,56 +1423,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to create and populate simulation results section
     function createSimulationResultsSection() {
-        // Check if results container exists
-        let resultsContainer = document.getElementById('simulation-results-container');
+        // We'll no longer create a separate container
+        // Instead, we'll use the existing tab content structure
         
-        if (!resultsContainer) {
-            resultsContainer = document.createElement('div');
-            resultsContainer.id = 'simulation-results-container';
-            resultsContainer.className = 'simulation-results-container';
-            
-            // Create graphs container directly (remove title to save space)
-            const graphsContainer = document.createElement('div');
-            graphsContainer.id = 'graphs-container';
-            graphsContainer.className = 'graphs-container';
-            resultsContainer.appendChild(graphsContainer);
-            
-            // Create data table container
-            const dataTableContainer = document.createElement('div');
-            dataTableContainer.id = 'data-table-container';
-            dataTableContainer.className = 'data-table-container';
-            resultsContainer.appendChild(dataTableContainer);
-            
-            // Create tab content
-            const tabContentContainer = createTabContent();
-            resultsContainer.appendChild(tabContentContainer);
-            
-            // Append to the dynamic content container if it exists
-            const dynamicContainer = document.getElementById('dynamic-content-container');
-            if (dynamicContainer) {
-                dynamicContainer.appendChild(resultsContainer);
-            } else {
-                // Append to the main element if it exists
-                const mainElement = document.querySelector('main');
-                if (mainElement) {
-                    mainElement.appendChild(resultsContainer);
-                } else {
-                    // Last resort: append to body
-                    document.body.appendChild(resultsContainer);
-                }
-            }
+        // Get the simulation-data tab content
+        const simulationDataTab = document.getElementById('simulation-data');
+        
+        if (!simulationDataTab) {
+            console.error('Simulation data tab not found');
+            return null;
         }
         
-        return resultsContainer;
+        // Clear any existing content if needed
+        // simulationDataTab.innerHTML = '';
+        
+        // Return the existing tab content
+        return simulationDataTab;
     }
 
     // Update the updateGraphs function to use our container
     function updateGraphs(data) {
-        const graphsContainer = document.getElementById('graphs-container');
-        if (!graphsContainer) {
-            createSimulationResultsSection();
-        }
-        
+        // We no longer need to check for graphs-container
+        // Just make sure we have the graphing module
         if (window.graphingModule) {
             window.graphingModule.updateCharts(data);
         }
@@ -1522,7 +1512,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             <div class="data-export">
-                <button id="export-data-btn" class="button">Export Results</button>
+                <button id="export-results-btn" class="button">Export Results</button>
                 <button id="export-csv-btn" class="button">Export CSV</button>
             </div>
         `;
@@ -1530,4 +1520,124 @@ document.addEventListener('DOMContentLoaded', function() {
         
         return tabContentContainer;
     }
+
+    // Initialize unit selection
+    function initializeUnitSelection() {
+        // Implementation of initializeUnitSelection function
+    }
+
+    // Initialize grain selection
+    function initializeGrainSelection() {
+        // Implementation of initializeGrainSelection function
+    }
+
+    // Initialize propellant selection
+    function initializePropellantSelection() {
+        // Implementation of initializePropellantSelection function
+    }
+
+    // Add event listeners for main buttons
+    function handleCalculateButtonClick() {
+        // Implementation of handleCalculateButtonClick function
+    }
+
+    function handleResetButtonClick() {
+        // Implementation of handleResetButtonClick function
+    }
+
+    // Add event listeners for the export buttons in the simulation data tab
+    function exportSimulationResults() {
+        // Check if we have simulation data
+        if (!simulationData || !simulationData.summary) {
+            alert('No simulation data available to export. Please run a simulation first.');
+            return;
+        }
+        
+        // Create a formatted text representation of the results
+        let resultsText = 'SRocket Simulation Results\n';
+        resultsText += '========================\n\n';
+        
+        // Add performance data
+        resultsText += 'Performance:\n';
+        resultsText += `- Total Impulse: ${simulationData.summary.totalImpulse.toFixed(1)} ${isImperial ? 'lbf·s' : 'Ns'}\n`;
+        resultsText += `- Specific Impulse: ${simulationData.summary.isp.toFixed(1)} s\n`;
+        resultsText += `- Max Thrust: ${simulationData.summary.maxThrust.toFixed(1)} ${isImperial ? 'lbf' : 'N'}\n`;
+        resultsText += `- Average Thrust: ${simulationData.summary.avgThrust.toFixed(1)} ${isImperial ? 'lbf' : 'N'}\n`;
+        resultsText += `- Burn Time: ${simulationData.summary.burnTime.toFixed(2)} s\n\n`;
+        
+        // Add design parameters
+        resultsText += 'Design Parameters:\n';
+        resultsText += `- Motor Class: ${simulationData.summary.motorClass || '-'}\n`;
+        resultsText += `- Propellant Mass: ${(isImperial ? simulationData.summary.propellantMass * kgToLb : simulationData.summary.propellantMass).toFixed(3)} ${isImperial ? 'lb' : 'kg'}\n`;
+        resultsText += `- Grain Shape: ${simulationData.inputs.grainType || '-'}\n`;
+        resultsText += `- Nozzle Expansion Ratio: ${simulationData.inputs.expansionRatio.toFixed(1)}\n`;
+        resultsText += `- Chamber Pressure (avg): ${(isImperial ? simulationData.summary.avgPressure * mpaToPs : simulationData.summary.avgPressure).toFixed(2)} ${isImperial ? 'psi' : 'MPa'}\n\n`;
+        
+        // Add timestamp
+        resultsText += `Generated: ${new Date().toLocaleString()}\n`;
+        
+        // Create a blob and download
+        const blob = new Blob([resultsText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'srocket_simulation_results.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function exportSimulationCsv() {
+        // Check if we have simulation data
+        if (!simulationData || !simulationData.timeData.length === 0) {
+            alert('No simulation data available to export. Please run a simulation first.');
+            return;
+        }
+        
+        // Create CSV header
+        let csvContent = 'Time (s),Thrust (';
+        csvContent += isImperial ? 'lbf' : 'N';
+        csvContent += '),Pressure (';
+        csvContent += isImperial ? 'psi' : 'MPa';
+        csvContent += '),Burn Area (';
+        csvContent += isImperial ? 'in²' : 'mm²';
+        csvContent += '),Regression (';
+        csvContent += isImperial ? 'in' : 'mm';
+        csvContent += ')\n';
+        
+        // Add data rows
+        simulationData.timeData.forEach((time, index) => {
+            const thrust = isImperial ? simulationData.thrustData[index] * nToLbf : simulationData.thrustData[index];
+            const pressure = isImperial ? simulationData.pressureData[index] * mpaToPs : simulationData.pressureData[index];
+            const burnArea = isImperial ? simulationData.burnAreaData[index] * mm2ToIn2 : simulationData.burnAreaData[index];
+            const regression = isImperial ? simulationData.regressionData[index] * mmToIn : simulationData.regressionData[index];
+            
+            csvContent += `${time.toFixed(3)},${thrust.toFixed(2)},${pressure.toFixed(3)},${burnArea.toFixed(2)},${regression.toFixed(3)}\n`;
+        });
+        
+        // Create a blob and download
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'srocket_simulation_data.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+    
+    // Add event listeners for the export buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        const exportResultsBtn = document.getElementById('export-results-btn');
+        if (exportResultsBtn) {
+            exportResultsBtn.addEventListener('click', exportSimulationResults);
+        }
+        
+        const exportCsvBtn = document.getElementById('export-csv-btn');
+        if (exportCsvBtn) {
+            exportCsvBtn.addEventListener('click', exportSimulationCsv);
+        }
+    });
 }); 

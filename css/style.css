@@ -1,4 +1,8 @@
 /* Base Styles */
+#grain-visualization-container {
+    display: none !important;
+}
+
 :root {
     --primary-color: #003366;
     --secondary-color: #66CCFF;
@@ -328,11 +332,7 @@ input:checked + .slider:before {
 }
 
 /* Graph Containers */
-.graph-container, .visualization-container {
-    width: 100%;
-    height: 400px;
-    position: relative;
-}
+
 
 /* Summary Grid */
 .summary-grid {

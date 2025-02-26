@@ -838,9 +838,10 @@ footer {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    padding: calc(1.2em + 1vw); /* Dynamic padding that scales with viewport */
-    margin-bottom: calc(1.2em + 1vw); /* Dynamic margin that scales with viewport */
+    padding: calc(1.2em + 1vw);
+    margin-bottom: calc(1.2em + 1vw);
     transition: all 0.3s ease;
+    position: relative;
 }
 
 .dark-mode .simulation-results {
@@ -848,6 +849,120 @@ footer {
     box-shadow: 0 2px 10px rgba(0,0,0,0.15);
 }
 
+/* Performance and Design Parameters styling */
+.results-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+@media (min-width: 768px) {
+    .results-summary {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.results-panel {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.dark-mode .results-panel {
+    background-color: #2a2a2a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.results-panel h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 18px;
+    color: #333;
+}
+
+.dark-mode .results-panel h3 {
+    border-bottom-color: #444;
+    color: #e0e0e0;
+}
+
+.param-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.param-table tr {
+    border-bottom: 1px dotted #eee;
+}
+
+.dark-mode .param-table tr {
+    border-bottom-color: #444;
+}
+
+.param-table tr:last-child {
+    border-bottom: none;
+}
+
+.param-table td {
+    padding: 10px 5px;
+    vertical-align: middle;
+}
+
+.param-table td:first-child {
+    font-weight: 600;
+    color: #555;
+    width: 50%;
+}
+
+.dark-mode .param-table td:first-child {
+    color: #aaa;
+}
+
+.param-table td:last-child {
+    text-align: right;
+    font-family: monospace;
+    font-size: 15px;
+    color: #333;
+}
+
+.dark-mode .param-table td:last-child {
+    color: #e0e0e0;
+}
+
+.export-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.export-btn {
+    padding: 8px 16px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.export-btn:hover {
+    background-color: #0b7dda;
+}
+
+.dark-mode .export-btn {
+    background-color: #1976D2;
+}
+
+.dark-mode .export-btn:hover {
+    background-color: #1565C0;
+}
+
+/* Results header */
 .results-header {
     display: flex;
     justify-content: space-between;
@@ -957,6 +1072,10 @@ footer {
     
     .section-title, .input-card h3, .propellant-details h3 {
         font-size: calc(18px + 0.2vw);
+    }
+    
+    .form-control {
+        font-size: calc(15px + 0.2vw);
     }
 }
 
@@ -1158,4 +1277,69 @@ select.form-control {
     .section {
         padding: 15px;
     }
+}
+
+/* Results visualization container */
+.results-visualization {
+    margin: 25px 0;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.dark-mode .results-visualization {
+    background-color: #2a2a2a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.results-table th,
+.results-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.dark-mode .results-table th,
+.dark-mode .results-table td {
+    border-bottom-color: #444;
+}
+
+.results-table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+}
+
+.dark-mode .results-table th {
+    background-color: #333;
+    color: #e0e0e0;
+}
+
+/* Maintain scrollable container styles */
+.table-scroll-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: 6px;
+    border: 1px solid #eee;
+    margin: 15px 0;
+}
+
+.dark-mode .table-scroll-container {
+    border-color: #444;
+}
+
+/* Data point rows in tables */
+.data-point-row:hover {
+    background-color: #f5f5f5;
+}
+
+.dark-mode .data-point-row:hover {
+    background-color: #333;
 }
