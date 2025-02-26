@@ -353,6 +353,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 length: document.getElementById('bates-length').value,
                 segments: document.getElementById('bates-segments').value
             };
+        } else if (formData.grainShape === 'finocyl') {
+            formData.grainParams = {
+                outerDiameter: document.getElementById('finocyl-outer-diameter').value,
+                innerDiameter: document.getElementById('finocyl-inner-diameter').value,
+                length: document.getElementById('finocyl-length').value,
+                finCount: document.getElementById('finocyl-fin-count').value,
+                finHeight: document.getElementById('finocyl-fin-height').value,
+                finWidth: document.getElementById('finocyl-fin-width').value
+            };
+        } else if (formData.grainShape === 'star') {
+            formData.grainParams = {
+                outerDiameter: document.getElementById('star-outer-diameter').value,
+                pointCount: document.getElementById('star-point-count').value,
+                pointDepth: document.getElementById('star-point-depth').value,
+                pointAngle: document.getElementById('star-point-angle').value,
+                length: document.getElementById('star-length').value
+            };
+        } else if (formData.grainShape === 'moonburner') {
+            formData.grainParams = {
+                outerDiameter: document.getElementById('moonburner-outer-diameter').value,
+                coreDiameter: document.getElementById('moonburner-core-diameter').value,
+                coreOffset: document.getElementById('moonburner-core-offset').value,
+                length: document.getElementById('moonburner-length').value
+            };
+        } else if (formData.grainShape === 'rodandtube') {
+            formData.grainParams = {
+                outerDiameter: document.getElementById('rodandtube-outer-diameter').value,
+                innerDiameter: document.getElementById('rodandtube-inner-diameter').value,
+                rodDiameter: document.getElementById('rodandtube-rod-diameter').value,
+                length: document.getElementById('rodandtube-length').value
+            };
+        } else if (formData.grainShape === 'endburner') {
+            formData.grainParams = {
+                diameter: document.getElementById('endburner-diameter').value,
+                length: document.getElementById('endburner-length').value
+            };
         }
         
         // Nozzle data
@@ -443,6 +479,32 @@ document.addEventListener('DOMContentLoaded', function() {
                             document.getElementById('bates-inner-diameter').value = formData.grainParams.innerDiameter || '';
                             document.getElementById('bates-length').value = formData.grainParams.length || '';
                             document.getElementById('bates-segments').value = formData.grainParams.segments || '';
+                        } else if (formData.grainShape === 'finocyl' && formData.grainParams) {
+                            document.getElementById('finocyl-outer-diameter').value = formData.grainParams.outerDiameter || '';
+                            document.getElementById('finocyl-inner-diameter').value = formData.grainParams.innerDiameter || '';
+                            document.getElementById('finocyl-length').value = formData.grainParams.length || '';
+                            document.getElementById('finocyl-fin-count').value = formData.grainParams.finCount || '';
+                            document.getElementById('finocyl-fin-height').value = formData.grainParams.finHeight || '';
+                            document.getElementById('finocyl-fin-width').value = formData.grainParams.finWidth || '';
+                        } else if (formData.grainShape === 'star' && formData.grainParams) {
+                            document.getElementById('star-outer-diameter').value = formData.grainParams.outerDiameter || '';
+                            document.getElementById('star-point-count').value = formData.grainParams.pointCount || '';
+                            document.getElementById('star-point-depth').value = formData.grainParams.pointDepth || '';
+                            document.getElementById('star-point-angle').value = formData.grainParams.pointAngle || '';
+                            document.getElementById('star-length').value = formData.grainParams.length || '';
+                        } else if (formData.grainShape === 'moonburner' && formData.grainParams) {
+                            document.getElementById('moonburner-outer-diameter').value = formData.grainParams.outerDiameter || '';
+                            document.getElementById('moonburner-core-diameter').value = formData.grainParams.coreDiameter || '';
+                            document.getElementById('moonburner-core-offset').value = formData.grainParams.coreOffset || '';
+                            document.getElementById('moonburner-length').value = formData.grainParams.length || '';
+                        } else if (formData.grainShape === 'rodandtube' && formData.grainParams) {
+                            document.getElementById('rodandtube-outer-diameter').value = formData.grainParams.outerDiameter || '';
+                            document.getElementById('rodandtube-inner-diameter').value = formData.grainParams.innerDiameter || '';
+                            document.getElementById('rodandtube-rod-diameter').value = formData.grainParams.rodDiameter || '';
+                            document.getElementById('rodandtube-length').value = formData.grainParams.length || '';
+                        } else if (formData.grainShape === 'endburner' && formData.grainParams) {
+                            document.getElementById('endburner-diameter').value = formData.grainParams.diameter || '';
+                            document.getElementById('endburner-length').value = formData.grainParams.length || '';
                         }
                         
                         // Nozzle data
@@ -476,38 +538,219 @@ document.addEventListener('DOMContentLoaded', function() {
             time: [],
             thrust: [],
             pressure: [],
+            burnRate: [],
+            burnArea: [],
+            portArea: [],
+            massFlux: [],
+            kn: [],
             summary: {
                 maxThrust: 0,
                 totalImpulse: 0,
                 burnTime: 0,
                 maxPressure: 0,
+                avgPressure: 0,
                 isp: 0,
-                propellantMass: 0
+                propellantMass: 0,
+                propellantLength: 0,
+                volumeLoading: 0,
+                initialKN: 0,
+                peakKN: 0,
+                idealCf: 0,
+                deliveredCf: 0,
+                throatPortRatio: 0,
+                peakMassFlux: 0
             }
         };
+        
+        // Get motor parameters from inputs
+        const grainShape = document.getElementById('grain-shape').value;
+        const throatDiameter = parseFloat(document.getElementById('throat-diameter').value) || 20; // mm
+        const throatArea = Math.PI * Math.pow(throatDiameter / 2, 2) / 1000000; // m²
+        const exitDiameter = parseFloat(document.getElementById('exit-diameter').value) || 40; // mm
+        const exitArea = Math.PI * Math.pow(exitDiameter / 2, 2) / 1000000; // m²
+        const expansionRatio = exitArea / throatArea;
+        
+        // Propellant parameters
+        const propellantDensity = parseFloat(document.getElementById('propellant-density').value) || 1800; // kg/m³
+        const gamma = parseFloat(document.getElementById('specific-heat-ratio').value) || 1.2;
+        
+        // Motor case parameters (estimated/placeholder)
+        const motorCaseLength = 200; // mm
+        const motorCaseVolume = Math.PI * Math.pow(exitDiameter / 2, 2) * motorCaseLength / 1000000; // m³
+        
+        // Grain geometry parameters
+        let grainOuterDiameter, grainInnerDiameter, grainLength, segments;
+        let portArea, initialBurnArea, propellantVolume;
+        
+        // Calculate grain specific parameters based on grain type
+        switch(grainShape) {
+            case 'bates':
+                grainOuterDiameter = parseFloat(document.getElementById('bates-outer-diameter').value) || 70; // mm
+                grainInnerDiameter = parseFloat(document.getElementById('bates-inner-diameter').value) || 20; // mm
+                grainLength = parseFloat(document.getElementById('bates-length').value) || 100; // mm
+                segments = parseInt(document.getElementById('bates-segments').value) || 1;
+                
+                // Calculate initial port area (m²)
+                portArea = Math.PI * Math.pow(grainInnerDiameter / 2000, 2) * segments;
+                
+                // Calculate initial burn area (m²)
+                initialBurnArea = segments * (
+                    2 * Math.PI * Math.pow(grainOuterDiameter / 2000, 2) - 
+                    2 * Math.PI * Math.pow(grainInnerDiameter / 2000, 2) + 
+                    2 * Math.PI * (grainInnerDiameter / 2000) * (grainLength / 1000)
+                );
+                
+                // Calculate propellant volume (m³)
+                propellantVolume = segments * Math.PI * ((Math.pow(grainOuterDiameter / 2000, 2) - 
+                    Math.pow(grainInnerDiameter / 2000, 2))) * (grainLength / 1000);
+                break;
+                
+            case 'finocyl':
+                grainOuterDiameter = parseFloat(document.getElementById('finocyl-outer-diameter').value) || 70; // mm
+                grainInnerDiameter = parseFloat(document.getElementById('finocyl-inner-diameter').value) || 20; // mm
+                grainLength = parseFloat(document.getElementById('finocyl-length').value) || 100; // mm
+                const finCount = parseInt(document.getElementById('finocyl-fin-count').value) || 6;
+                const finHeight = parseFloat(document.getElementById('finocyl-fin-height').value) || 20; // mm
+                const finWidth = parseFloat(document.getElementById('finocyl-fin-width').value) || 10; // mm
+                
+                // Calculate initial port area (approximation, m²)
+                portArea = Math.PI * Math.pow(grainInnerDiameter / 2000, 2);
+                
+                // Calculate initial burn area (approximation, m²)
+                initialBurnArea = 2 * Math.PI * Math.pow(grainOuterDiameter / 2000, 2) - 
+                    2 * Math.PI * Math.pow(grainInnerDiameter / 2000, 2) + 
+                    2 * Math.PI * (grainInnerDiameter / 2000) * (grainLength / 1000) +
+                    finCount * (
+                        2 * (finHeight / 1000) * (grainLength / 1000) + 
+                        2 * (finWidth / 1000) * (finHeight / 1000)
+                    );
+                
+                // Calculate propellant volume (approximation, m³)
+                propellantVolume = Math.PI * ((Math.pow(grainOuterDiameter / 2000, 2) - 
+                    Math.pow(grainInnerDiameter / 2000, 2))) * (grainLength / 1000) +
+                    finCount * (finWidth / 1000) * (finHeight / 1000) * (grainLength / 1000);
+                break;
+                
+            case 'star':
+                // Add star grain calculations here
+                // For simplicity, using approximations
+                grainOuterDiameter = 70; // mm
+                grainLength = 100; // mm
+                portArea = 0.0005; // m²
+                initialBurnArea = 0.03; // m²
+                propellantVolume = 0.0003; // m³
+                break;
+                
+            default:
+                // Default values for unknown grain type
+                portArea = 0.0005; // m²
+                initialBurnArea = 0.03; // m²
+                propellantVolume = 0.0003; // m³
+                grainLength = 100; // mm
+        }
+        
+        // Calculate initial parameters
+        const initialKN = initialBurnArea / throatArea;
+        const propellantMass = propellantDensity * propellantVolume; // kg
+        const volumeLoading = (propellantVolume / motorCaseVolume) * 100; // %
+        const throatPortRatio = throatArea / portArea;
+        
+        // Set initial values in summary
+        data.summary.propellantMass = propellantMass;
+        data.summary.propellantLength = grainLength;
+        data.summary.volumeLoading = volumeLoading;
+        data.summary.initialKN = initialKN;
+        data.summary.throatPortRatio = throatPortRatio;
         
         // Generate time series data
         const duration = 5; // seconds
         const timeStep = 0.05; // seconds
         
+        // Estimate chamber pressure based on KN (simplified formula)
+        const estimatePressure = (burnArea, time) => {
+            // This is a simplification. Real pressure would be calculated based on 
+            // burn rate, propellant characteristics, and nozzle parameters
+            const kn = burnArea / throatArea;
+            return 5 * Math.exp(-Math.pow((time - duration/2.2) / (duration/4.5), 2)) * (kn / initialKN);
+        };
+        
+        // Estimate thrust based on pressure (simplified formula)
+        const estimateThrust = (pressure, cf) => {
+            return pressure * 1000000 * throatArea * cf; // N
+        };
+        
+        // Estimate thrust coefficient (simplified formula)
+        const estimateCf = (pressureRatio) => {
+            // Theoretical formula for ideal thrust coefficient
+            const term1 = Math.sqrt((2 * Math.pow(gamma, 2)) / (gamma - 1));
+            const term2 = Math.pow((2 / (gamma + 1)), ((gamma + 1) / (2 * (gamma - 1))));
+            const term3 = Math.sqrt(1 - Math.pow(pressureRatio, ((gamma - 1) / gamma)));
+            return term1 * term2 * term3;
+        };
+        
+        // Ambient pressure in MPa
+        const ambientPressure = parseFloat(document.getElementById('ambient-pressure').value) || 1.0;
+        const ambientPressureMPa = ambientPressure * 0.101325; // Convert atm to MPa
+        
+        let totalPressure = 0;
+        let pressurePoints = 0;
+        
         for (let t = 0; t <= duration; t += timeStep) {
             data.time.push(t);
             
-            // Generate thrust curve (simplified bell curve)
-            const thrustValue = 1000 * Math.exp(-Math.pow((t - duration/2) / (duration/4), 2));
+            // Simulate burn regression (simplified)
+            const burnProgress = t / duration; // 0 to 1
+            const currentBurnArea = initialBurnArea * (1 - 0.5 * burnProgress); // Decreases as grain burns
+            const currentPortArea = portArea * (1 + burnProgress); // Increases as port grows
+            
+            // Calculate KN
+            const kn = currentBurnArea / throatArea;
+            data.kn.push(kn);
+            
+            // Track peak KN
+            data.summary.peakKN = Math.max(data.summary.peakKN, kn);
+            
+            // Calculate pressure based on KN
+            const pressureValue = estimatePressure(currentBurnArea, t);
+            data.pressure.push(pressureValue);
+            
+            // Track for average pressure calculation
+            totalPressure += pressureValue;
+            pressurePoints++;
+            
+            // Calculate mass flux (kg/m²s)
+            const massFlux = pressureValue * 1000000 * Math.sqrt(gamma / (8314 / 22)) / Math.sqrt(300);
+            data.massFlux.push(massFlux);
+            
+            // Track peak mass flux
+            data.summary.peakMassFlux = Math.max(data.summary.peakMassFlux, massFlux);
+            
+            // Calculate ideal thrust coefficient
+            const pressureRatio = ambientPressureMPa / pressureValue;
+            const idealCf = estimateCf(pressureRatio);
+            
+            // Apply efficiency factor for delivered Cf (typically 0.85-0.98)
+            const efficiencyFactor = 0.92;
+            const deliveredCf = idealCf * efficiencyFactor;
+            
+            // Calculate thrust
+            const thrustValue = estimateThrust(pressureValue, deliveredCf);
             data.thrust.push(thrustValue);
             
-            // Generate pressure curve (similar to thrust but with different peak)
-            const pressureValue = 5 * Math.exp(-Math.pow((t - duration/2.2) / (duration/4.5), 2));
-            data.pressure.push(pressureValue);
+            // Store burn area and port area for visualization
+            data.burnArea.push(currentBurnArea);
+            data.portArea.push(currentPortArea);
             
             // Track maximum values
             data.summary.maxThrust = Math.max(data.summary.maxThrust, thrustValue);
             data.summary.maxPressure = Math.max(data.summary.maxPressure, pressureValue);
+            data.summary.idealCf = Math.max(data.summary.idealCf, idealCf);
+            data.summary.deliveredCf = deliveredCf; // Use final value
         }
         
         // Calculate summary values
         data.summary.burnTime = duration;
+        data.summary.avgPressure = totalPressure / pressurePoints;
         
         // Calculate total impulse (area under thrust curve)
         data.summary.totalImpulse = data.thrust.reduce((sum, thrust, i) => {
@@ -515,52 +758,97 @@ document.addEventListener('DOMContentLoaded', function() {
             return sum + (thrust + data.thrust[i-1]) / 2 * timeStep;
         }, 0);
         
-        // Set other summary values
-        data.summary.propellantMass = 0.5; // kg
+        // Calculate specific impulse
         data.summary.isp = data.summary.totalImpulse / (data.summary.propellantMass * 9.81);
         
         return data;
     }
     
-    // Placeholder functions for updating UI
-    function updateGraphs(data) {
-        if (window.graphingModule) {
-            window.graphingModule.updateCharts(data);
-        }
-    }
-    
+    // Update the summary with calculated values
     function updateSummary(data) {
+        // Get unit system
+        const isImperial = document.getElementById('unit-toggle').checked;
+        
+        // Unit conversion factors
+        const mpaToPs = 145.038;
+        const kgToLb = 2.20462;
+        const mmToIn = 0.0393701;
+        const kgm2sToLbin2s = 0.2048174;
+        
         // Update summary values
         document.getElementById('max-thrust').textContent = data.summary.maxThrust.toFixed(1) + ' ' + 
-            (unitToggle.checked ? 'lbf' : 'N');
+            (isImperial ? 'lbf' : 'N');
         document.getElementById('total-impulse').textContent = data.summary.totalImpulse.toFixed(1) + ' ' + 
-            (unitToggle.checked ? 'lbf·s' : 'Ns');
+            (isImperial ? 'lbf·s' : 'Ns');
         document.getElementById('burn-time').textContent = data.summary.burnTime.toFixed(2) + ' s';
-        document.getElementById('max-pressure').textContent = data.summary.maxPressure.toFixed(2) + ' ' + 
-            (unitToggle.checked ? 'psi' : 'MPa');
+        
+        // Pressure
+        const maxPressure = isImperial ? data.summary.maxPressure * mpaToPs : data.summary.maxPressure;
+        document.getElementById('max-pressure').textContent = maxPressure.toFixed(2) + ' ' + 
+            (isImperial ? 'psi' : 'MPa');
+            
+        const avgPressure = isImperial ? data.summary.avgPressure * mpaToPs : data.summary.avgPressure;
+        document.getElementById('avg-pressure').textContent = avgPressure.toFixed(2) + ' ' + 
+            (isImperial ? 'psi' : 'MPa');
+        
         document.getElementById('isp').textContent = data.summary.isp.toFixed(1) + ' s';
-        document.getElementById('propellant-mass').textContent = data.summary.propellantMass.toFixed(3) + ' ' + 
-            (unitToggle.checked ? 'lb' : 'kg');
-    }
-    
-    function clearGraphs() {
-        if (window.graphingModule) {
-            window.graphingModule.clearCharts();
-        }
+        
+        // Mass and dimensions
+        const propellantMass = isImperial ? data.summary.propellantMass * kgToLb : data.summary.propellantMass;
+        document.getElementById('propellant-mass').textContent = propellantMass.toFixed(3) + ' ' + 
+            (isImperial ? 'lb' : 'kg');
+            
+        const propellantLength = isImperial ? data.summary.propellantLength * mmToIn : data.summary.propellantLength;
+        document.getElementById('propellant-length').textContent = propellantLength.toFixed(1) + ' ' + 
+            (isImperial ? 'in' : 'mm');
+        
+        // Volume loading
+        document.getElementById('volume-loading').textContent = data.summary.volumeLoading.toFixed(1) + ' %';
+        
+        // KN values
+        document.getElementById('initial-kn').textContent = data.summary.initialKN.toFixed(2);
+        document.getElementById('peak-kn').textContent = data.summary.peakKN.toFixed(2);
+        
+        // Thrust coefficients
+        document.getElementById('ideal-cf').textContent = data.summary.idealCf.toFixed(3);
+        document.getElementById('delivered-cf').textContent = data.summary.deliveredCf.toFixed(3);
+        
+        // Throat/port ratio
+        document.getElementById('throat-port-ratio').textContent = data.summary.throatPortRatio.toFixed(3);
+        
+        // Mass flux
+        const massFlux = isImperial ? data.summary.peakMassFlux * kgm2sToLbin2s : data.summary.peakMassFlux;
+        document.getElementById('peak-mass-flux').textContent = massFlux.toFixed(1) + ' ' + 
+            (isImperial ? 'lb/in²s' : 'kg/m²s');
     }
     
     function clearSummary() {
+        // Get unit system
+        const isImperial = document.getElementById('unit-toggle').checked;
+        
         // Reset summary values
         document.getElementById('max-thrust').textContent = '-- ' + 
-            (unitToggle.checked ? 'lbf' : 'N');
+            (isImperial ? 'lbf' : 'N');
         document.getElementById('total-impulse').textContent = '-- ' + 
-            (unitToggle.checked ? 'lbf·s' : 'Ns');
+            (isImperial ? 'lbf·s' : 'Ns');
         document.getElementById('burn-time').textContent = '-- s';
         document.getElementById('max-pressure').textContent = '-- ' + 
-            (unitToggle.checked ? 'psi' : 'MPa');
+            (isImperial ? 'psi' : 'MPa');
+        document.getElementById('avg-pressure').textContent = '-- ' + 
+            (isImperial ? 'psi' : 'MPa');
         document.getElementById('isp').textContent = '-- s';
         document.getElementById('propellant-mass').textContent = '-- ' + 
-            (unitToggle.checked ? 'lb' : 'kg');
+            (isImperial ? 'lb' : 'kg');
+        document.getElementById('propellant-length').textContent = '-- ' + 
+            (isImperial ? 'in' : 'mm');
+        document.getElementById('volume-loading').textContent = '-- %';
+        document.getElementById('initial-kn').textContent = '--';
+        document.getElementById('peak-kn').textContent = '--';
+        document.getElementById('ideal-cf').textContent = '--';
+        document.getElementById('delivered-cf').textContent = '--';
+        document.getElementById('throat-port-ratio').textContent = '--';
+        document.getElementById('peak-mass-flux').textContent = '-- ' + 
+            (isImperial ? 'lb/in²s' : 'kg/m²s');
     }
 
     function showGrainParameters() {
@@ -1009,4 +1297,18 @@ document.addEventListener('DOMContentLoaded', function() {
             category: 'commercial'
         }
     };
+
+    // Update the charts with simulation data
+    function updateGraphs(data) {
+        if (window.graphingModule) {
+            window.graphingModule.updateCharts(data);
+        }
+    }
+    
+    // Clear all charts
+    function clearGraphs() {
+        if (window.graphingModule) {
+            window.graphingModule.clearCharts();
+        }
+    }
 }); 

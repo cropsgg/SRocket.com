@@ -122,6 +122,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 grainParameters.pointAngle = parseFloat(document.getElementById('star-point-angle').value) || 60;
                 grainParameters.length = parseFloat(document.getElementById('star-length').value) || 150;
                 break;
+                
+            case 'moonburner':
+                grainParameters.outerDiameter = parseFloat(document.getElementById('moonburner-outer-diameter').value) || 100;
+                grainParameters.coreDiameter = parseFloat(document.getElementById('moonburner-core-diameter').value) || 20;
+                grainParameters.coreOffset = parseFloat(document.getElementById('moonburner-core-offset').value) || 15;
+                grainParameters.length = parseFloat(document.getElementById('moonburner-length').value) || 150;
+                break;
+                
+            case 'rodandtube':
+                grainParameters.outerDiameter = parseFloat(document.getElementById('rodandtube-outer-diameter').value) || 100;
+                grainParameters.innerDiameter = parseFloat(document.getElementById('rodandtube-inner-diameter').value) || 40;
+                grainParameters.rodDiameter = parseFloat(document.getElementById('rodandtube-rod-diameter').value) || 20;
+                grainParameters.length = parseFloat(document.getElementById('rodandtube-length').value) || 150;
+                break;
+                
+            case 'endburner':
+                grainParameters.diameter = parseFloat(document.getElementById('endburner-diameter').value) || 100;
+                grainParameters.length = parseFloat(document.getElementById('endburner-length').value) || 150;
+                break;
         }
     }
     
@@ -179,6 +198,34 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentBurnRegression
                 );
                 break;
+                
+            case 'moonburner':
+                geometry = GrainGeometry.calculateMoonBurner(
+                    grainParameters.outerDiameter,
+                    grainParameters.coreDiameter,
+                    grainParameters.coreOffset,
+                    grainParameters.length,
+                    currentBurnRegression
+                );
+                break;
+                
+            case 'rodandtube':
+                geometry = GrainGeometry.calculateRodAndTube(
+                    grainParameters.outerDiameter,
+                    grainParameters.innerDiameter,
+                    grainParameters.rodDiameter,
+                    grainParameters.length,
+                    currentBurnRegression
+                );
+                break;
+                
+            case 'endburner':
+                geometry = GrainGeometry.calculateEndBurner(
+                    grainParameters.diameter,
+                    grainParameters.length,
+                    currentBurnRegression
+                );
+                break;
         }
         
         // Draw based on grain type and view mode
@@ -223,6 +270,12 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'star':
                 drawStarPattern(centerX, centerY, scale, colors);
                 break;
+            case 'moonburner':
+                drawMoonburnerPattern(centerX, centerY, scale, colors);
+                break;
+            case 'rodandtube':
+                drawRodAndTubePattern(centerX, centerY, scale, colors);
+                break;
         }
     }
     
@@ -232,20 +285,58 @@ document.addEventListener('DOMContentLoaded', function() {
         const scaledLength = length * scale;
         const startX = centerX - scaledLength / 2;
         
-        // Draw grain outline
-        grainCtx.beginPath();
-        grainCtx.rect(startX, centerY - (grainParameters.outerDiameter / 2) * scale,
-                     scaledLength, grainParameters.outerDiameter * scale);
-        grainCtx.fillStyle = colors.grain;
-        grainCtx.fill();
-        
-        // Draw burned area
-        if (geometry.burnedRadius > 0) {
+        if (grainParameters.shape === 'endburner') {
+            // Special handling for end burner (burns from one end only)
+            const diameter = grainParameters.diameter;
+            const scaledDiameter = diameter * scale;
+            
+            // Draw grain outline
             grainCtx.beginPath();
-            grainCtx.rect(startX, centerY - geometry.burnedRadius * scale,
-                         scaledLength, geometry.burnedRadius * 2 * scale);
-            grainCtx.fillStyle = colors.burned;
+            grainCtx.rect(startX, centerY - scaledDiameter / 2, scaledLength, scaledDiameter);
+            grainCtx.fillStyle = colors.grain;
             grainCtx.fill();
+            
+            // Draw burned area (from right end)
+            if (currentBurnRegression > 0) {
+                const burnedLength = Math.min(length, currentBurnRegression);
+                grainCtx.beginPath();
+                grainCtx.rect(
+                    startX + scaledLength - burnedLength * scale, 
+                    centerY - scaledDiameter / 2,
+                    burnedLength * scale,
+                    scaledDiameter
+                );
+                grainCtx.fillStyle = colors.burned;
+                grainCtx.fill();
+                
+                // Draw burning surface
+                grainCtx.beginPath();
+                grainCtx.rect(
+                    startX + scaledLength - burnedLength * scale - 2, 
+                    centerY - scaledDiameter / 2,
+                    4,
+                    scaledDiameter
+                );
+                grainCtx.fillStyle = '#FF6666'; // Red for burning surface
+                grainCtx.fill();
+            }
+        } else {
+            // Standard longitudinal view for other grain types
+            // Draw grain outline
+            grainCtx.beginPath();
+            grainCtx.rect(startX, centerY - (grainParameters.outerDiameter / 2) * scale,
+                         scaledLength, grainParameters.outerDiameter * scale);
+            grainCtx.fillStyle = colors.grain;
+            grainCtx.fill();
+            
+            // Draw burned area
+            if (geometry.burnedRadius > 0) {
+                grainCtx.beginPath();
+                grainCtx.rect(startX, centerY - geometry.burnedRadius * scale,
+                             scaledLength, geometry.burnedRadius * 2 * scale);
+                grainCtx.fillStyle = colors.burned;
+                grainCtx.fill();
+            }
         }
         
         // Draw segments for BATES grains
@@ -324,6 +415,65 @@ document.addEventListener('DOMContentLoaded', function() {
         // Draw label
         const textWidth = grainCtx.measureText(label).width;
         grainCtx.fillText(label, (x1 + x2) / 2 - textWidth / 2, y1 - 10);
+    }
+    
+    // Draw Moonburner pattern
+    function drawMoonburnerPattern(centerX, centerY, scale, colors) {
+        const { outerDiameter, coreDiameter, coreOffset } = grainParameters;
+        const outerRadius = outerDiameter / 2;
+        const coreRadius = coreDiameter / 2;
+        
+        // Draw offset core
+        grainCtx.beginPath();
+        grainCtx.arc(centerX + coreOffset * scale, centerY, coreRadius * scale, 0, Math.PI * 2);
+        grainCtx.fillStyle = colors.burned;
+        grainCtx.fill();
+        
+        // Draw burn regression if any
+        if (currentBurnRegression > 0) {
+            grainCtx.beginPath();
+            grainCtx.arc(centerX + coreOffset * scale, centerY, 
+                        (coreRadius + currentBurnRegression) * scale, 0, Math.PI * 2);
+            grainCtx.fillStyle = colors.burned;
+            grainCtx.fill();
+        }
+    }
+    
+    // Draw Rod and Tube pattern
+    function drawRodAndTubePattern(centerX, centerY, scale, colors) {
+        const { outerDiameter, innerDiameter, rodDiameter } = grainParameters;
+        const outerRadius = outerDiameter / 2;
+        const innerRadius = innerDiameter / 2;
+        const rodRadius = rodDiameter / 2;
+        
+        // Draw inner tube
+        grainCtx.beginPath();
+        grainCtx.arc(centerX, centerY, innerRadius * scale, 0, Math.PI * 2);
+        grainCtx.fillStyle = colors.burned;
+        grainCtx.fill();
+        
+        // Draw center rod
+        grainCtx.beginPath();
+        grainCtx.arc(centerX, centerY, rodRadius * scale, 0, Math.PI * 2);
+        grainCtx.fillStyle = colors.grain;
+        grainCtx.fill();
+        
+        // Draw burn regression if any
+        if (currentBurnRegression > 0) {
+            // Inner tube regression (outward)
+            grainCtx.beginPath();
+            grainCtx.arc(centerX, centerY, 
+                        (innerRadius + currentBurnRegression) * scale, 0, Math.PI * 2);
+            grainCtx.fillStyle = colors.burned;
+            grainCtx.fill();
+            
+            // Rod regression (inward)
+            const burnedRodRadius = Math.max(0, rodRadius - currentBurnRegression);
+            grainCtx.beginPath();
+            grainCtx.arc(centerX, centerY, burnedRodRadius * scale, 0, Math.PI * 2);
+            grainCtx.fillStyle = colors.grain;
+            grainCtx.fill();
+        }
     }
     
     // Initialize visualization

@@ -106,6 +106,125 @@ class GrainGeometry {
             volume
         };
     }
+    
+    // Calculate Moon Burner grain geometry
+    static calculateMoonBurner(outerDiameter, coreDiameter, coreOffset, length, burnRegression) {
+        const outerRadius = outerDiameter / 2;
+        const coreRadius = coreDiameter / 2;
+        
+        // Calculate web thickness (minimum distance from core to outer edge)
+        const minWebThickness = outerRadius - coreRadius - coreOffset;
+        
+        // Check if completely burned
+        if (burnRegression >= minWebThickness) {
+            return {
+                isCompletelyBurned: true,
+                burnedRadius: outerRadius,
+                webThickness: 0,
+                burnArea: 0,
+                volume: 0
+            };
+        }
+        
+        // Calculate burn surface area
+        // This is a simplified calculation - a real moon burner would need
+        // more complex math to account for the changing perimeter as burning progresses
+        const coreCircumference = 2 * Math.PI * (coreRadius + burnRegression);
+        const endFaceArea = Math.PI * Math.pow(outerRadius, 2) - 
+                            Math.PI * Math.pow(coreRadius + burnRegression, 2);
+        
+        const burnArea = coreCircumference * length + 2 * endFaceArea;
+        
+        // Calculate volume
+        const grainVolume = (Math.PI * Math.pow(outerRadius, 2) - 
+                             Math.PI * Math.pow(coreRadius + burnRegression, 2)) * length;
+        
+        return {
+            isCompletelyBurned: false,
+            burnedRadius: coreRadius + burnRegression,
+            webThickness: minWebThickness - burnRegression,
+            burnArea,
+            volume: grainVolume
+        };
+    }
+    
+    // Calculate Rod and Tube grain geometry
+    static calculateRodAndTube(outerDiameter, innerDiameter, rodDiameter, length, burnRegression) {
+        const outerRadius = outerDiameter / 2;
+        const innerRadius = innerDiameter / 2;
+        const rodRadius = rodDiameter / 2;
+        
+        // Calculate web thicknesses
+        const tubeWebThickness = outerRadius - innerRadius;
+        const gapWebThickness = innerRadius - rodRadius;
+        const minWebThickness = Math.min(tubeWebThickness, gapWebThickness);
+        
+        // Check if completely burned
+        if (burnRegression >= minWebThickness) {
+            return {
+                isCompletelyBurned: true,
+                webThickness: 0,
+                burnArea: 0,
+                volume: 0
+            };
+        }
+        
+        // Calculate tube dimensions with burn regression
+        const burnedOuterRadius = outerRadius;
+        const burnedInnerRadius = innerRadius + burnRegression;
+        
+        // Calculate rod dimensions with burn regression
+        const burnedRodRadius = Math.max(0, rodRadius - burnRegression);
+        
+        // Calculate burn surface areas
+        const tubeInnerSurfaceArea = 2 * Math.PI * burnedInnerRadius * length;
+        const tubeEndFaceArea = Math.PI * (Math.pow(burnedOuterRadius, 2) - Math.pow(burnedInnerRadius, 2));
+        const rodSurfaceArea = 2 * Math.PI * burnedRodRadius * length;
+        const rodEndFaceArea = Math.PI * Math.pow(burnedRodRadius, 2);
+        
+        const totalBurnArea = tubeInnerSurfaceArea + 2 * tubeEndFaceArea + rodSurfaceArea + 2 * rodEndFaceArea;
+        
+        // Calculate volume
+        const tubeVolume = Math.PI * (Math.pow(burnedOuterRadius, 2) - Math.pow(burnedInnerRadius, 2)) * length;
+        const rodVolume = Math.PI * Math.pow(burnedRodRadius, 2) * length;
+        const totalVolume = tubeVolume + rodVolume;
+        
+        return {
+            isCompletelyBurned: false,
+            webThickness: minWebThickness - burnRegression,
+            burnArea: totalBurnArea,
+            volume: totalVolume
+        };
+    }
+    
+    // Calculate End Burner grain geometry
+    static calculateEndBurner(diameter, length, burnRegression) {
+        const radius = diameter / 2;
+        
+        // Check if completely burned
+        if (burnRegression >= length) {
+            return {
+                isCompletelyBurned: true,
+                webThickness: 0,
+                burnArea: 0,
+                volume: 0
+            };
+        }
+        
+        // Only the end face burns
+        const burnArea = Math.PI * Math.pow(radius, 2);
+        
+        // Calculate remaining length and volume
+        const remainingLength = length - burnRegression;
+        const volume = Math.PI * Math.pow(radius, 2) * remainingLength;
+        
+        return {
+            isCompletelyBurned: false,
+            webThickness: remainingLength,
+            burnArea,
+            volume
+        };
+    }
 }
 
 // Export the class

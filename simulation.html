@@ -103,11 +103,14 @@
             <section class="grain-geometry">
                 <h2>Grain Geometry</h2>
                 <div class="form-group">
-                    <label for="grain-shape">Shape</label>
+                    <label for="grain-shape">Shape<span id="grain-info-btn" title="View grain shape reference">i</span></label>
                     <select id="grain-shape" name="grain-shape">
                         <option value="bates">BATES</option>
                         <option value="finocyl">Finocyl</option>
                         <option value="star">Star</option>
+                        <option value="moonburner">Moon Burner</option>
+                        <option value="rodandtube">Rod & Tube</option>
+                        <option value="endburner">End Burner</option>
                         <option value="custom">Custom</option>
                     </select>
                 </div>
@@ -159,7 +162,67 @@
                 </div>
 
                 <div id="star-params" class="shape-params hidden">
-                    <!-- Star specific parameters -->
+                    <div class="form-group">
+                        <label for="star-point-count">Number of Points</label>
+                        <input type="number" id="star-point-count" min="3" max="12" step="1" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="star-point-depth">Point Depth (mm)</label>
+                        <input type="number" id="star-point-depth" min="1" max="100" step="1" value="15">
+                    </div>
+                    <div class="form-group">
+                        <label for="star-point-angle">Point Angle (degrees)</label>
+                        <input type="number" id="star-point-angle" min="10" max="90" step="1" value="36">
+                    </div>
+                </div>
+                
+                <div id="moonburner-params" class="shape-params hidden">
+                    <div class="form-group">
+                        <label for="moonburner-outer-diameter">Outer Diameter (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="moonburner-outer-diameter" min="10" max="1000" step="1" value="70">
+                    </div>
+                    <div class="form-group">
+                        <label for="moonburner-core-diameter">Core Diameter (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="moonburner-core-diameter" min="5" max="500" step="1" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="moonburner-core-offset">Core Offset (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="moonburner-core-offset" min="0" max="100" step="1" value="15">
+                    </div>
+                    <div class="form-group">
+                        <label for="moonburner-length">Length (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="moonburner-length" min="10" max="1000" step="1" value="100">
+                    </div>
+                </div>
+                
+                <div id="rodandtube-params" class="shape-params hidden">
+                    <div class="form-group">
+                        <label for="rodandtube-outer-diameter">Outer Diameter (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="rodandtube-outer-diameter" min="10" max="1000" step="1" value="70">
+                    </div>
+                    <div class="form-group">
+                        <label for="rodandtube-inner-diameter">Inner Diameter (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="rodandtube-inner-diameter" min="5" max="500" step="1" value="40">
+                    </div>
+                    <div class="form-group">
+                        <label for="rodandtube-rod-diameter">Rod Diameter (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="rodandtube-rod-diameter" min="5" max="100" step="1" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="rodandtube-length">Length (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="rodandtube-length" min="10" max="1000" step="1" value="100">
+                    </div>
+                </div>
+                
+                <div id="endburner-params" class="shape-params hidden">
+                    <div class="form-group">
+                        <label for="endburner-diameter">Diameter (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="endburner-diameter" min="10" max="1000" step="1" value="70">
+                    </div>
+                    <div class="form-group">
+                        <label for="endburner-length">Length (<span class="unit-label">mm</span>)</label>
+                        <input type="number" id="endburner-length" min="10" max="1000" step="1" value="100">
+                    </div>
                 </div>
 
                 <div id="custom-params" class="shape-params hidden">
@@ -255,7 +318,11 @@
                         </div>
                         <div class="summary-item">
                             <h3>Max Pressure</h3>
-                            <p id="max-pressure">-- <span class="unit-label">MPa</span></p>
+                            <p id="max-pressure">-- <span class="unit-label" data-metric="MPa" data-imperial="psi">MPa</span></p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Average Pressure</h3>
+                            <p id="avg-pressure">-- <span class="unit-label" data-metric="MPa" data-imperial="psi">MPa</span></p>
                         </div>
                         <div class="summary-item">
                             <h3>ISP</h3>
@@ -263,7 +330,39 @@
                         </div>
                         <div class="summary-item">
                             <h3>Propellant Mass</h3>
-                            <p id="propellant-mass">-- <span class="unit-label">kg</span></p>
+                            <p id="propellant-mass">-- <span class="unit-label" data-metric="kg" data-imperial="lb">kg</span></p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Propellant Length</h3>
+                            <p id="propellant-length">-- <span class="unit-label" data-metric="mm" data-imperial="in">mm</span></p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Volume Loading</h3>
+                            <p id="volume-loading">-- %</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Initial KN</h3>
+                            <p id="initial-kn">--</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Peak KN</h3>
+                            <p id="peak-kn">--</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Ideal Thrust Coefficient</h3>
+                            <p id="ideal-cf">--</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Delivered Thrust Coefficient</h3>
+                            <p id="delivered-cf">--</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Throat/Port Ratio</h3>
+                            <p id="throat-port-ratio">--</p>
+                        </div>
+                        <div class="summary-item">
+                            <h3>Peak Mass Flux</h3>
+                            <p id="peak-mass-flux">-- <span class="unit-label" data-metric="kg/m²s" data-imperial="lb/in²s">kg/m²s</span></p>
                         </div>
                     </div>
                 </div>
@@ -295,6 +394,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <script src="js/grain-geometry.js"></script>
     <script src="js/grain-visualization.js"></script>
+    <script src="js/grain-shape-gallery.js"></script>
 
     <div class="help-panel">
         <button class="help-toggle" aria-label="Toggle help">
