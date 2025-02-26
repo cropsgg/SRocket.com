@@ -1,9 +1,22 @@
 /* About Page Specific Styles */
+:root {
+    --primary-color: #1a5f7a;
+    --secondary-color: #2c88a0;
+    --background-color: #ffffff;
+    --content-color: #f3f4f6;
+    --border-color: #e5e7eb;
+    --text-color: #374151;
+    --border-radius: 8px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --transition: all 0.3s ease;
+}
 
 .about-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Hero Section */
@@ -14,6 +27,8 @@
     background-color: var(--primary-color);
     color: white;
     border-radius: var(--border-radius);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .about-hero h1 {
@@ -202,7 +217,7 @@
 .github-button {
     display: inline-flex;
     align-items: center;
-    background-color: #24292e;
+    background-color: var(--primary-color);
     color: white;
     padding: 0.75rem 1.5rem;
     border-radius: var(--border-radius);
@@ -213,7 +228,7 @@
 }
 
 .github-button:hover {
-    background-color: #0366d6;
+    background-color: var(--secondary-color);
     transform: translateY(-2px);
 }
 
@@ -242,11 +257,12 @@
     border-radius: var(--border-radius);
     text-align: center;
     transition: var(--transition);
+    box-shadow: var(--shadow);
 }
 
 .contact-method:hover {
     transform: translateY(-3px);
-    box-shadow: var(--shadow);
+    box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15);
 }
 
 .contact-method h3 {
@@ -256,7 +272,9 @@
 }
 
 .contact-method p {
-    margin-bottom: 0;
+    margin: 0;
+    padding: 0;
+    word-break: break-word;
 }
 
 .contact-method a {
@@ -264,6 +282,10 @@
     text-decoration: none;
     font-weight: 600;
     transition: var(--transition);
+    display: inline-block;
+    width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
 }
 
 .contact-method a:hover {
@@ -273,6 +295,14 @@
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
+    .about-container {
+        padding: 1rem;
+    }
+
+    .about-hero {
+        padding: 2rem 1rem;
+    }
+
     .about-hero h1 {
         font-size: 2rem;
     }
@@ -285,8 +315,11 @@
         font-size: 1.5rem;
     }
     
-    .feature-list {
+    .feature-list,
+    .team-grid,
+    .contact-methods {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
     
     .tech-stack {
@@ -294,14 +327,25 @@
     }
     
     .tech-item {
-        width: 120px;
+        width: calc(50% - 1rem);
+        min-width: 120px;
     }
-    
-    .team-grid {
-        grid-template-columns: 1fr;
+}
+
+@media (max-width: 480px) {
+    .about-container {
+        padding: 0.5rem;
     }
-    
-    .contact-methods {
-        grid-template-columns: 1fr;
+
+    .about-hero {
+        padding: 1.5rem 1rem;
+    }
+
+    .about-content {
+        padding: 1rem;
+    }
+
+    .tech-item {
+        width: 100%;
     }
 } 
