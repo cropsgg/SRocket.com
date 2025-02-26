@@ -2,6 +2,9 @@
 // Provides detailed visualization of different grain geometries
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the visualization container
+    initGrainVisualization();
+    
     // Get canvas and context
     const grainCanvas = document.getElementById('grain-canvas');
     let grainCtx = grainCanvas ? grainCanvas.getContext('2d') : null;
@@ -12,6 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let simulationData = null;
     let grainParameters = {};
     let viewMode = 'cross-section'; // 'cross-section' or 'longitudinal'
+    let animationFrameId = null;
+    let isAnimating = false;
+    let burnStartTime = 0;
     
     // Initialize the visualization
     function initialize() {
@@ -45,6 +51,65 @@ document.addEventListener('DOMContentLoaded', function() {
             resizeCanvas();
             updateVisualization();
         });
+    }
+    
+    // Calculate burn regression based on time and burn rate
+    function calculateBurnRegression(time) {
+        if (!simulationData || !simulationData.burnRate) return 0;
+        
+        // Get burn rate at current time
+        const burnRate = simulationData.burnRate;
+        return burnRate * time;
+    }
+    
+    // Animate grain burning
+    function animateGrainBurning(startPosition, endPosition) {
+        if (isAnimating) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        
+        isAnimating = true;
+        burnStartTime = performance.now();
+        const animationDuration = 2000; // 2 second animation
+        
+        function animate(currentTime) {
+            const elapsed = currentTime - burnStartTime;
+            const progress = Math.min(elapsed / animationDuration, 1);
+            
+            // Calculate current position using easing function
+            const easedProgress = easeInOutCubic(progress);
+            const currentRegression = startPosition + (endPosition - startPosition) * easedProgress;
+            
+            // Update burn regression and redraw
+            currentBurnRegression = currentRegression;
+            updateVisualization();
+            
+            // Update burning effect
+            const canvas = document.getElementById('grain-canvas');
+            if (canvas) {
+                if (progress > 0 && progress < 1) {
+                    canvas.classList.add('burning');
+                    // Add active class after a short delay for the glow effect
+                    setTimeout(() => canvas.classList.add('active'), 50);
+                } else {
+                    canvas.classList.remove('active');
+                    setTimeout(() => canvas.classList.remove('burning'), 300);
+                }
+            }
+            
+            if (progress < 1) {
+                animationFrameId = requestAnimationFrame(animate);
+            } else {
+                isAnimating = false;
+            }
+        }
+        
+        animationFrameId = requestAnimationFrame(animate);
+    }
+    
+    // Easing function for smooth animation
+    function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     }
     
     // Resize canvas to fit container
@@ -299,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Draw burned area (from right end)
             if (currentBurnRegression > 0) {
                 const burnedLength = Math.min(length, currentBurnRegression);
-                grainCtx.beginPath();
+        grainCtx.beginPath();
                 grainCtx.rect(
                     startX + scaledLength - burnedLength * scale, 
                     centerY - scaledDiameter / 2,
@@ -307,8 +372,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     scaledDiameter
                 );
                 grainCtx.fillStyle = colors.burned;
-                grainCtx.fill();
-                
+        grainCtx.fill();
+        
                 // Draw burning surface
                 grainCtx.beginPath();
                 grainCtx.rect(
@@ -331,11 +396,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Draw burned area
             if (geometry.burnedRadius > 0) {
-                grainCtx.beginPath();
+                    grainCtx.beginPath();
                 grainCtx.rect(startX, centerY - geometry.burnedRadius * scale,
                              scaledLength, geometry.burnedRadius * 2 * scale);
                 grainCtx.fillStyle = colors.burned;
-                grainCtx.fill();
+                    grainCtx.fill();
             }
         }
         
@@ -344,11 +409,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const segmentLength = scaledLength / grainParameters.segments;
             for (let i = 1; i < grainParameters.segments; i++) {
                 const x = startX + i * segmentLength;
-                grainCtx.beginPath();
+            grainCtx.beginPath();
                 grainCtx.moveTo(x, centerY - (grainParameters.outerDiameter / 2) * scale);
                 grainCtx.lineTo(x, centerY + (grainParameters.outerDiameter / 2) * scale);
                 grainCtx.strokeStyle = colors.text;
-                grainCtx.stroke();
+            grainCtx.stroke();
             }
         }
     }
@@ -398,12 +463,12 @@ document.addEventListener('DOMContentLoaded', function() {
         grainCtx.stroke();
         
         // Draw arrows
-        grainCtx.beginPath();
+            grainCtx.beginPath();
         grainCtx.moveTo(x1, y1);
         grainCtx.lineTo(x1 + arrowSize, y1 - arrowSize);
         grainCtx.moveTo(x1, y1);
         grainCtx.lineTo(x1 + arrowSize, y1 + arrowSize);
-        grainCtx.stroke();
+            grainCtx.stroke();
         
         grainCtx.beginPath();
         grainCtx.moveTo(x2, y2);
@@ -469,32 +534,85 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Rod regression (inward)
             const burnedRodRadius = Math.max(0, rodRadius - currentBurnRegression);
-            grainCtx.beginPath();
+        grainCtx.beginPath();
             grainCtx.arc(centerX, centerY, burnedRodRadius * scale, 0, Math.PI * 2);
             grainCtx.fillStyle = colors.grain;
             grainCtx.fill();
         }
     }
     
-    // Initialize visualization
-    initialize();
-    
     // Export functions for external use
     window.grainVisualization = {
         setSimulationData: function(data) {
             simulationData = data;
             updateGrainParameters();
+            
+            // Start animation from display to visualization
+            if (data.initialRegression !== undefined) {
+                animateGrainBurning(0, data.initialRegression);
+            }
+            
             updateVisualization();
         },
         updateBurnRegression: function(regression) {
-            currentBurnRegression = regression;
-            updateVisualization();
+            if (isAnimating) return;
+            
+            const startRegression = currentBurnRegression;
+            animateGrainBurning(startRegression, regression);
         },
         reset: function() {
             currentTime = 0;
             currentBurnRegression = 0;
             simulationData = null;
+            if (isAnimating) {
+                cancelAnimationFrame(animationFrameId);
+                isAnimating = false;
+            }
             updateVisualization();
         }
     };
 }); 
+
+// Initialize the grain visualization
+function initGrainVisualization() {
+    // Check if visualization container exists, if not create it
+    let visualizationContainer = document.getElementById('grain-visualization-container');
+    if (!visualizationContainer) {
+        visualizationContainer = document.createElement('div');
+        visualizationContainer.id = 'grain-visualization-container';
+        visualizationContainer.className = 'visualization-container';
+        
+        // Create canvas container directly (remove title to save space)
+        const canvasContainer = document.createElement('div');
+        canvasContainer.className = 'visualization-canvas-container';
+        visualizationContainer.appendChild(canvasContainer);
+        
+        // Create canvas for grain visualization
+        const canvas = document.createElement('canvas');
+        canvas.id = 'grain-canvas-visualization';
+        canvas.width = 400;
+        canvas.height = 400;
+        canvasContainer.appendChild(canvas);
+        
+        // Append to the dynamic content container if it exists
+        const dynamicContainer = document.getElementById('dynamic-content-container');
+        if (dynamicContainer) {
+            dynamicContainer.appendChild(visualizationContainer);
+        } else {
+            // Fallback to main
+            const mainElement = document.querySelector('main');
+            if (mainElement) {
+                mainElement.appendChild(visualizationContainer);
+            } else {
+                // Last resort: insert before footer
+                const footer = document.querySelector('footer');
+                if (footer) {
+                    document.body.insertBefore(visualizationContainer, footer);
+                } else {
+                    document.body.appendChild(visualizationContainer);
+                }
+            }
+        }
+    }
+    return visualizationContainer;
+} 

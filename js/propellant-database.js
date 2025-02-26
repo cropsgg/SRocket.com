@@ -331,6 +331,36 @@ document.addEventListener('DOMContentLoaded', function() {
         propellantEditorModal.style.display = 'block';
     }
     
+    // Helper function to append elements to the dynamic container
+    function appendToContainer(element) {
+        const dynamicContainer = document.getElementById('dynamic-content-container');
+        if (dynamicContainer) {
+            dynamicContainer.appendChild(element);
+        } else {
+            // Fallback to main
+            const mainElement = document.querySelector('main');
+            if (mainElement) {
+                mainElement.appendChild(element);
+            } else {
+                // Last resort: append to body but make sure it's positioned properly
+                element.style.position = 'fixed';
+                element.style.zIndex = '1000';
+                element.style.top = '50%';
+                element.style.left = '50%';
+                element.style.transform = 'translate(-50%, -50%)';
+                document.body.appendChild(element);
+            }
+        }
+    }
+
+    // Function to remove dialog from container
+    function removeFromContainer(element) {
+        const parent = element.parentNode;
+        if (parent) {
+            parent.removeChild(element);
+        }
+    }
+    
     // View detailed information about a propellant
     function viewPropellantDetails(id) {
         // Get the propellant data
@@ -460,31 +490,31 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         // Add the dialog to the page
-        document.body.appendChild(dialog);
+        appendToContainer(dialog);
         
         // Close button event
         const closeButton = dialog.querySelector('.close-modal');
         closeButton.addEventListener('click', function() {
-            document.body.removeChild(dialog);
+            removeFromContainer(dialog);
         });
         
         // Close details button event
         const closeDetailsButton = dialog.querySelector('.close-details');
         closeDetailsButton.addEventListener('click', function() {
-            document.body.removeChild(dialog);
+            removeFromContainer(dialog);
         });
         
         // Use propellant button event
         const useButton = dialog.querySelector('.use-this-propellant');
         useButton.addEventListener('click', function() {
             usePropellant(id);
-            document.body.removeChild(dialog);
+            removeFromContainer(dialog);
         });
         
         // Close when clicking outside the content
         dialog.addEventListener('click', function(e) {
             if (e.target === dialog) {
-                document.body.removeChild(dialog);
+                removeFromContainer(dialog);
             }
         });
     }

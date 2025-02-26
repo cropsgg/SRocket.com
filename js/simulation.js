@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Create dynamic content sections
+    createSimulationResultsSection();
+    
     // Unit toggle functionality
     const unitToggle = document.getElementById('unit-toggle');
     const unitLabels = document.querySelectorAll('.unit-label');
@@ -269,20 +272,117 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function runSimulation() {
-        console.log('Running simulation...');
-        // This would be replaced with actual simulation logic
+        if (!validateInputs()) return;
         
-        // For demo purposes, let's generate some random data
-        const simulationData = generateDemoData();
+        // Disable run button and enable pause/reset
+        document.getElementById('run-simulation').disabled = true;
+        document.getElementById('pause-simulation').disabled = false;
+        document.getElementById('reset-simulation').disabled = false;
         
-        // Update graphs and summary with the data
-        updateGraphs(simulationData);
-        updateSummary(simulationData);
+        // Get simulation parameters
+        const timeStep = parseFloat(document.getElementById('time-step').value);
+        const ambientPressure = parseFloat(document.getElementById('ambient-pressure').value);
         
-        // Update grain visualization
+        // Initialize simulation data
+        simulationData = {
+            time: [],
+            thrust: [],
+            pressure: [],
+            burnRate: [],
+            burnRegression: [],
+            burnTime: 0
+        };
+        
+        // Calculate initial burn rate and regression
+        const initialPressure = estimatePressure(calculateBurnArea(), 0);
+        const initialBurnRate = calculateBurnRate(initialPressure);
+        simulationData.burnRate.push(initialBurnRate);
+        simulationData.burnRegression.push(0);
+        
+        // Update grain visualization with initial state
         if (window.grainVisualization) {
-            window.grainVisualization.setSimulationData(simulationData);
+            window.grainVisualization.setSimulationData({
+                burnRate: initialBurnRate,
+                burnTime: 0,
+                initialRegression: 0
+            });
         }
+        
+        // Start simulation loop
+        let currentTime = 0;
+        let burnRegression = 0;
+        
+        function simulationStep() {
+            // Calculate current values
+            const burnArea = calculateBurnArea(burnRegression);
+            const pressure = estimatePressure(burnArea, currentTime);
+            const burnRate = calculateBurnRate(pressure);
+            const thrust = estimateThrust(pressure, estimateCf(pressure / ambientPressure));
+            
+            // Update burn regression
+            burnRegression += burnRate * timeStep;
+            
+            // Store data
+            simulationData.time.push(currentTime);
+            simulationData.thrust.push(thrust);
+            simulationData.pressure.push(pressure);
+            simulationData.burnRate.push(burnRate);
+            simulationData.burnRegression.push(burnRegression);
+            
+            // Update visualizations
+            updateGraphs(simulationData);
+            if (window.grainVisualization) {
+                window.grainVisualization.updateBurnRegression(burnRegression);
+            }
+            
+            // Update time slider
+            const timeSlider = document.getElementById('time-slider');
+            if (timeSlider) {
+                timeSlider.value = currentTime;
+                document.getElementById('time-display').textContent = currentTime.toFixed(2) + 's';
+            }
+            
+            // Check if grain is completely burned
+            if (isGrainBurned(burnRegression)) {
+                simulationData.burnTime = currentTime;
+                updateSummary(simulationData);
+                return;
+            }
+            
+            // Continue simulation
+            currentTime += timeStep;
+            if (!isPaused) {
+                simulationTimeout = setTimeout(simulationStep, timeStep * 1000);
+            }
+        }
+        
+        // Start simulation
+        isPaused = false;
+        simulationStep();
+    }
+    
+    function calculateBurnRate(pressure) {
+        const coefficient = parseFloat(document.getElementById('burn-rate-coefficient').value);
+        const exponent = parseFloat(document.getElementById('burn-rate-exponent').value);
+        return coefficient * Math.pow(pressure, exponent);
+    }
+    
+    function isGrainBurned(burnRegression) {
+        const grainType = document.getElementById('grain-shape').value;
+        let maxRegression;
+        
+        switch (grainType) {
+            case 'bates':
+                const outerDiameter = parseFloat(document.getElementById('bates-outer-diameter').value);
+                const innerDiameter = parseFloat(document.getElementById('bates-inner-diameter').value);
+                maxRegression = (outerDiameter - innerDiameter) / 2;
+                break;
+            // Add cases for other grain types
+            default:
+                maxRegression = 100; // Default value
+        }
+        
+        return burnRegression >= maxRegression;
     }
     
     function pauseSimulation() {
@@ -901,6 +1001,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         window.grainVisualization.updateGrainParameters(grainType, grainParameters);
+        
+        // Also update the grain display if it exists
+        if (typeof updateGrainDisplay === 'function') {
+            updateGrainDisplay();
+        }
     }
 
     // Help panel toggle
@@ -1298,8 +1403,58 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Update the charts with simulation data
+    // Function to create and populate simulation results section
+    function createSimulationResultsSection() {
+        // Check if results container exists
+        let resultsContainer = document.getElementById('simulation-results-container');
+        
+        if (!resultsContainer) {
+            resultsContainer = document.createElement('div');
+            resultsContainer.id = 'simulation-results-container';
+            resultsContainer.className = 'simulation-results-container';
+            
+            // Create graphs container directly (remove title to save space)
+            const graphsContainer = document.createElement('div');
+            graphsContainer.id = 'graphs-container';
+            graphsContainer.className = 'graphs-container';
+            resultsContainer.appendChild(graphsContainer);
+            
+            // Create data table container
+            const dataTableContainer = document.createElement('div');
+            dataTableContainer.id = 'data-table-container';
+            dataTableContainer.className = 'data-table-container';
+            resultsContainer.appendChild(dataTableContainer);
+            
+            // Create tab content
+            const tabContentContainer = createTabContent();
+            resultsContainer.appendChild(tabContentContainer);
+            
+            // Append to the dynamic content container if it exists
+            const dynamicContainer = document.getElementById('dynamic-content-container');
+            if (dynamicContainer) {
+                dynamicContainer.appendChild(resultsContainer);
+            } else {
+                // Append to the main element if it exists
+                const mainElement = document.querySelector('main');
+                if (mainElement) {
+                    mainElement.appendChild(resultsContainer);
+                } else {
+                    // Last resort: append to body
+                    document.body.appendChild(resultsContainer);
+                }
+            }
+        }
+        
+        return resultsContainer;
+    }
+
+    // Update the updateGraphs function to use our container
     function updateGraphs(data) {
+        const graphsContainer = document.getElementById('graphs-container');
+        if (!graphsContainer) {
+            createSimulationResultsSection();
+        }
+        
         if (window.graphingModule) {
             window.graphingModule.updateCharts(data);
         }
@@ -1310,5 +1465,69 @@ document.addEventListener('DOMContentLoaded', function() {
         if (window.graphingModule) {
             window.graphingModule.clearCharts();
         }
+    }
+
+    // Function to set up tab content
+    function createTabContent() {
+        // Create tab content container
+        const tabContentContainer = document.createElement('div');
+        tabContentContainer.className = 'tab-content-container';
+        
+        // Thrust curve tab content
+        const thrustCurveTab = document.createElement('div');
+        thrustCurveTab.id = 'thrust-curve';
+        thrustCurveTab.className = 'tab-content active';
+        thrustCurveTab.innerHTML = '<div class="chart-container"><canvas id="thrust-chart"></canvas></div>';
+        tabContentContainer.appendChild(thrustCurveTab);
+        
+        // Pressure curve tab content
+        const pressureCurveTab = document.createElement('div');
+        pressureCurveTab.id = 'pressure-curve';
+        pressureCurveTab.className = 'tab-content';
+        pressureCurveTab.innerHTML = '<div class="chart-container"><canvas id="pressure-chart"></canvas></div>';
+        tabContentContainer.appendChild(pressureCurveTab);
+        
+        // Grain visualization tab content
+        const grainVisualizationTab = document.createElement('div');
+        grainVisualizationTab.id = 'grain-visualization';
+        grainVisualizationTab.className = 'tab-content';
+        grainVisualizationTab.innerHTML = '<div id="visualization-wrapper" class="visualization-wrapper"></div>';
+        tabContentContainer.appendChild(grainVisualizationTab);
+        
+        // Simulation data tab content
+        const simulationDataTab = document.createElement('div');
+        simulationDataTab.id = 'simulation-data';
+        simulationDataTab.className = 'tab-content';
+        simulationDataTab.innerHTML = `
+            <div class="data-summary">
+                <div class="data-card">
+                    <h4>Performance</h4>
+                    <table id="performance-table" class="data-table">
+                        <tr><td>Total Impulse:</td><td id="total-impulse">-</td></tr>
+                        <tr><td>Specific Impulse:</td><td id="specific-impulse">-</td></tr>
+                        <tr><td>Max Thrust:</td><td id="max-thrust">-</td></tr>
+                        <tr><td>Average Thrust:</td><td id="avg-thrust">-</td></tr>
+                        <tr><td>Burn Time:</td><td id="burn-time">-</td></tr>
+                    </table>
+                </div>
+                <div class="data-card">
+                    <h4>Design Parameters</h4>
+                    <table id="design-table" class="data-table">
+                        <tr><td>Motor Class:</td><td id="motor-class">-</td></tr>
+                        <tr><td>Propellant Mass:</td><td id="propellant-mass">-</td></tr>
+                        <tr><td>Grain Shape:</td><td id="grain-shape-value">-</td></tr>
+                        <tr><td>Nozzle Expansion Ratio:</td><td id="expansion-ratio">-</td></tr>
+                        <tr><td>Chamber Pressure (avg):</td><td id="chamber-pressure">-</td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="data-export">
+                <button id="export-data-btn" class="button">Export Results</button>
+                <button id="export-csv-btn" class="button">Export CSV</button>
+            </div>
+        `;
+        tabContentContainer.appendChild(simulationDataTab);
+        
+        return tabContentContainer;
     }
 }); 

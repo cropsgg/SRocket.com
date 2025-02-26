@@ -2,7 +2,7 @@
 // Provides visual examples of different grain shapes
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the gallery
+    // Initialize the grain shape gallery
     initGrainShapeGallery();
     
     // Attach listener to grain shape selector
@@ -33,6 +33,11 @@ function initGrainShapeGallery() {
         galleryContainer = document.createElement('div');
         galleryContainer.id = 'grain-shape-gallery';
         galleryContainer.className = 'grain-gallery-container';
+        
+        // Ensure it's initially hidden
+        galleryContainer.style.display = 'none';
+        galleryContainer.style.opacity = '0';
+        galleryContainer.style.visibility = 'hidden';
         
         // Add close button
         const closeBtn = document.createElement('button');
@@ -104,6 +109,7 @@ function initGrainShapeGallery() {
             const section = document.createElement('div');
             section.className = 'grain-gallery-item';
             section.id = `grain-gallery-${grain.id}`;
+            section.dataset.shape = grain.id;  // Add data attribute for selection
             
             // Create header
             const header = document.createElement('h4');
@@ -158,8 +164,20 @@ function initGrainShapeGallery() {
             galleryContent.appendChild(section);
         });
         
-        // Append to the document
-        document.body.appendChild(galleryContainer);
+        // Append to the dynamic content container if it exists
+        const dynamicContainer = document.getElementById('dynamic-content-container');
+        if (dynamicContainer) {
+            dynamicContainer.appendChild(galleryContainer);
+        } else {
+            // Fallback to main
+            const mainElement = document.querySelector('main');
+            if (mainElement) {
+                mainElement.appendChild(galleryContainer);
+            } else {
+                // Last resort: append to body
+                document.body.appendChild(galleryContainer);
+            }
+        }
         
         // Draw all grain shapes
         drawAllGrainShapes();
@@ -185,16 +203,21 @@ function drawAllGrainShapes() {
     drawCustomGrain('grain-gallery-canvas-custom');
 }
 
-// Update the grain shape gallery to highlight selected shape
+// Update the grain shape gallery based on selected shape
 function updateGrainShapeGallery(shapeType) {
+    // Update the gallery to highlight the selected shape
     const galleryItems = document.querySelectorAll('.grain-gallery-item');
     galleryItems.forEach(item => {
-        item.classList.remove('selected');
+        if (item.dataset.shape === shapeType) {
+            item.classList.add('selected');
+        } else {
+            item.classList.remove('selected');
+        }
     });
     
-    const selectedItem = document.getElementById(`grain-gallery-${shapeType}`);
-    if (selectedItem) {
-        selectedItem.classList.add('selected');
+    // Update the grain display to show the selected shape
+    if (window.updateGrainDisplay) {
+        window.updateGrainDisplay();
     }
 }
 

@@ -7,6 +7,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dark-mode.css" id="dark-mode-stylesheet" disabled>
+    
+    <!-- Move scripts to head with defer attribute -->
+    <script src="js/main.js" defer></script>
+    <script src="js/simulation.js" defer></script>
+    <script src="js/graphs.js" defer></script>
+    <script src="js/preferences.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom" defer></script>
+    <script src="js/grain-geometry.js" defer></script>
+    <script src="js/grain-visualization.js" defer></script>
+    <script src="js/grain-shape-gallery.js" defer></script>
+    <script src="js/grain-display.js" defer></script>
 </head>
 <body>
     <header>
@@ -272,12 +284,11 @@
 
         <div class="results-column">
             <section class="results-display">
-                <h2>Simulation Results</h2>
                 <div class="tabs">
                     <button class="tab-button active" data-tab="thrust-curve">Thrust Curve</button>
                     <button class="tab-button" data-tab="pressure-curve">Pressure Curve</button>
                     <button class="tab-button" data-tab="grain-visualization">Grain Visualization</button>
-                    <button class="tab-button" data-tab="summary">Summary</button>
+                    <button class="tab-button" data-tab="simulation-data">Detailed Data</button>
                 </div>
                 
                 <div id="thrust-curve" class="tab-content active">
@@ -295,10 +306,6 @@
                 <div id="grain-visualization" class="tab-content">
                     <div class="visualization-container">
                         <canvas id="grain-canvas"></canvas>
-                        <div class="time-slider">
-                            <input type="range" id="time-slider" min="0" max="100" value="0">
-                            <span id="time-display">0.00s</span>
-                        </div>
                     </div>
                 </div>
                 
@@ -376,6 +383,9 @@
                 </div>
             </section>
         </div>
+
+        <!-- Add a dedicated container for dynamically added content -->
+        <div id="dynamic-content-container"></div>
     </main>
 
     <footer>
@@ -385,16 +395,6 @@
             <a href="#">Terms of Use</a>
         </div>
     </footer>
-
-    <script src="js/main.js"></script>
-    <script src="js/simulation.js"></script>
-    <script src="js/graphs.js"></script>
-    <script src="js/preferences.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
-    <script src="js/grain-geometry.js"></script>
-    <script src="js/grain-visualization.js"></script>
-    <script src="js/grain-shape-gallery.js"></script>
 
     <div class="help-panel">
         <button class="help-toggle" aria-label="Toggle help">

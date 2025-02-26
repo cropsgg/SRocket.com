@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         // Add dialog to page
-        document.body.appendChild(dialog);
+        appendToContainer(dialog);
         
         // Add event listeners to buttons
         document.getElementById('export-csv').addEventListener('click', function() {
@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         // Add dialog to page
-        document.body.appendChild(dialog);
+        appendToContainer(dialog);
         
         // Add event listeners
         document.getElementById('export-thrust').addEventListener('click', function() {
@@ -375,6 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const a = document.createElement('a');
         a.href = url;
         a.download = filename;
+        a.style.display = 'none';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -394,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         // Add to page
-        document.body.appendChild(notification);
+        appendToContainer(notification);
         
         // Add close button functionality
         const closeButton = notification.querySelector('.notification-close');
@@ -408,5 +409,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.removeChild(notification);
             }
         }, 5000);
+    }
+
+    // Helper function to append elements to the dynamic container
+    function appendToContainer(element) {
+        const dynamicContainer = document.getElementById('dynamic-content-container');
+        if (dynamicContainer) {
+            dynamicContainer.appendChild(element);
+        } else {
+            // Fallback to main
+            const mainElement = document.querySelector('main');
+            if (mainElement) {
+                mainElement.appendChild(element);
+            } else {
+                // Last resort: append to body but make sure it's positioned properly
+                element.style.position = 'fixed';
+                element.style.zIndex = '1000';
+                element.style.top = '50%';
+                element.style.left = '50%';
+                element.style.transform = 'translate(-50%, -50%)';
+                document.body.appendChild(element);
+            }
+        }
     }
 }); 
