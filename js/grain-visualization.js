@@ -1,4 +1,4 @@
-// Grain Visualization Module for OpenMotor Web
+// Grain Visualization Module for SRocket Web
 // Provides detailed visualization of different grain geometries
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -17,8 +17,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function initialize() {
         if (!grainCanvas) return;
         
-        // Resize canvas to fit container
-        resizeCanvas();
+        // Set canvas resolution for better rendering
+        const dpr = window.devicePixelRatio || 1;
+        const rect = grainCanvas.getBoundingClientRect();
+        
+        grainCanvas.width = rect.width * dpr;
+        grainCanvas.height = rect.height * dpr;
+        grainCanvas.style.width = `${rect.width}px`;
+        grainCanvas.style.height = `${rect.height}px`;
+        
+        grainCtx.scale(dpr, dpr);
         
         // Draw empty state
         drawEmptyState();
@@ -43,19 +51,24 @@ document.addEventListener('DOMContentLoaded', function() {
     function resizeCanvas() {
         if (!grainCanvas) return;
         
+        const dpr = window.devicePixelRatio || 1;
         const container = grainCanvas.parentElement;
         const containerWidth = container.clientWidth;
         
-        grainCanvas.width = containerWidth;
-        grainCanvas.height = containerWidth * 0.75; // 4:3 aspect ratio
+        grainCanvas.width = containerWidth * dpr;
+        grainCanvas.height = (containerWidth * 0.75) * dpr;
+        grainCanvas.style.width = `${containerWidth}px`;
+        grainCanvas.style.height = `${containerWidth * 0.75}px`;
+        
+        grainCtx.scale(dpr, dpr);
     }
     
     // Draw empty state when no simulation is running
     function drawEmptyState() {
         if (!grainCtx) return;
         
-        const width = grainCanvas.width;
-        const height = grainCanvas.height;
+        const width = grainCanvas.width / (window.devicePixelRatio || 1);
+        const height = grainCanvas.height / (window.devicePixelRatio || 1);
         
         // Clear canvas
         grainCtx.clearRect(0, 0, width, height);
@@ -76,22 +89,6 @@ document.addEventListener('DOMContentLoaded', function() {
         grainCtx.fillText('Configure grain parameters in the input section', width / 2, height / 2 + 30);
     }
     
-    // Set simulation data for visualization
-    function setSimulationData(data) {
-        simulationData = data;
-        
-        // Get current grain parameters
-        updateGrainParameters();
-        
-        // Setup time slider
-        setupTimeSlider();
-        
-        // Initial visualization
-        currentTime = 0;
-        currentBurnRegression = 0;
-        updateVisualization();
-    }
-    
     // Update grain parameters from form inputs
     function updateGrainParameters() {
         const grainShape = document.getElementById('grain-shape').value;
@@ -110,64 +107,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
                 
             case 'finocyl':
-                // Add Finocyl specific parameters when implemented
+                grainParameters.outerDiameter = parseFloat(document.getElementById('finocyl-outer-diameter').value) || 100;
+                grainParameters.innerDiameter = parseFloat(document.getElementById('finocyl-inner-diameter').value) || 40;
+                grainParameters.finCount = parseInt(document.getElementById('finocyl-fin-count').value) || 6;
+                grainParameters.finWidth = parseFloat(document.getElementById('finocyl-fin-width').value) || 10;
+                grainParameters.finHeight = parseFloat(document.getElementById('finocyl-fin-height').value) || 20;
+                grainParameters.length = parseFloat(document.getElementById('finocyl-length').value) || 150;
                 break;
                 
             case 'star':
-                // Add Star specific parameters when implemented
-                break;
-                
-            case 'custom':
-                // Custom grain parameters would come from DXF file
+                grainParameters.outerDiameter = parseFloat(document.getElementById('star-outer-diameter').value) || 100;
+                grainParameters.pointCount = parseInt(document.getElementById('star-point-count').value) || 5;
+                grainParameters.pointDepth = parseFloat(document.getElementById('star-point-depth').value) || 30;
+                grainParameters.pointAngle = parseFloat(document.getElementById('star-point-angle').value) || 60;
+                grainParameters.length = parseFloat(document.getElementById('star-length').value) || 150;
                 break;
         }
-    }
-    
-    // Setup time slider for visualization
-    function setupTimeSlider() {
-        const timeSlider = document.getElementById('time-slider');
-        const timeDisplay = document.getElementById('time-display');
-        
-        if (!timeSlider || !simulationData || !simulationData.time || simulationData.time.length === 0) return;
-        
-        // Set slider range
-        timeSlider.min = 0;
-        timeSlider.max = simulationData.time.length - 1;
-        timeSlider.value = 0;
-        timeSlider.disabled = false;
-        
-        // Update time display
-        if (timeDisplay) {
-            timeDisplay.textContent = '0.00s';
-        }
-        
-        // Add slider event listener
-        timeSlider.addEventListener('input', function() {
-            const timeIndex = parseInt(this.value);
-            currentTime = simulationData.time[timeIndex];
-            
-            // Calculate burn regression based on time
-            // In a real simulation, this would come from actual burn calculations
-            // For now, we'll use a simplified model
-            const burnRate = 2; // mm/s (example value)
-            currentBurnRegression = currentTime * burnRate;
-            
-            // Update time display
-            if (timeDisplay) {
-                timeDisplay.textContent = currentTime.toFixed(2) + 's';
-            }
-            
-            // Update visualization
-            updateVisualization();
-        });
     }
     
     // Update the visualization based on current time and parameters
     function updateVisualization() {
         if (!grainCtx || !grainParameters.shape) return;
         
-        const width = grainCanvas.width;
-        const height = grainCanvas.height;
+        const width = grainCanvas.width / (window.devicePixelRatio || 1);
+        const height = grainCanvas.height / (window.devicePixelRatio || 1);
         
         // Clear canvas
         grainCtx.clearRect(0, 0, width, height);
@@ -175,553 +138,213 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set colors based on theme
         const isDarkMode = document.body.classList.contains('dark-mode');
         const colors = {
-            primary: isDarkMode ? '#66CCFF' : '#003366',
-            secondary: isDarkMode ? '#003366' : '#66CCFF',
-            background: isDarkMode ? '#222222' : '#FFFFFF',
+            grain: isDarkMode ? '#66CCFF' : '#003366',
+            burned: isDarkMode ? '#444444' : '#EEEEEE',
             text: isDarkMode ? '#F0F0F0' : '#333333',
-            burned: isDarkMode ? '#444444' : '#EEEEEE'
+            dimensions: isDarkMode ? '#88DDFF' : '#0055AA'
         };
         
-        // Draw based on grain type and view mode
+        // Calculate grain geometry based on type
+        let geometry;
         switch (grainParameters.shape) {
             case 'bates':
-                if (viewMode === 'cross-section') {
-                    drawBatesCrossSection(colors);
-                } else {
-                    drawBatesLongitudinal(colors);
-                }
+                geometry = GrainGeometry.calculateBATES(
+                    grainParameters.outerDiameter,
+                    grainParameters.innerDiameter,
+                    grainParameters.length,
+                    grainParameters.segments,
+                    currentBurnRegression
+                );
                 break;
                 
             case 'finocyl':
-                if (viewMode === 'cross-section') {
-                    drawFinocylCrossSection(colors);
-                } else {
-                    drawFinocylLongitudinal(colors);
-                }
+                geometry = GrainGeometry.calculateFinocyl(
+                    grainParameters.outerDiameter,
+                    grainParameters.innerDiameter,
+                    grainParameters.finCount,
+                    grainParameters.finWidth,
+                    grainParameters.finHeight,
+                    grainParameters.length,
+                    currentBurnRegression
+                );
                 break;
                 
             case 'star':
-                if (viewMode === 'cross-section') {
-                    drawStarCrossSection(colors);
-                } else {
-                    drawStarLongitudinal(colors);
-                }
+                geometry = GrainGeometry.calculateStar(
+                    grainParameters.outerDiameter,
+                    grainParameters.pointCount,
+                    grainParameters.pointDepth,
+                    grainParameters.pointAngle,
+                    grainParameters.length,
+                    currentBurnRegression
+                );
                 break;
-                
-            case 'custom':
-                drawCustomGrain(colors);
-                break;
-                
-            default:
-                drawEmptyState();
         }
         
-        // Draw legend
-        drawLegend(colors);
+        // Draw based on grain type and view mode
+        if (geometry) {
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const scale = Math.min(width, height) * 0.8 / grainParameters.outerDiameter;
+            
+            if (viewMode === 'cross-section') {
+                drawCrossSection(centerX, centerY, scale, geometry, colors);
+            } else {
+                drawLongitudinal(centerX, centerY, scale, geometry, colors);
+            }
+            
+            // Draw dimensions and labels
+            drawDimensions(centerX, centerY, scale, geometry, colors);
+        }
     }
     
-    // Draw BATES grain cross-section
-    function drawBatesCrossSection(colors) {
-        if (!grainCtx) return;
+    // Draw cross-section view
+    function drawCrossSection(centerX, centerY, scale, geometry, colors) {
+        const { outerDiameter, innerDiameter } = grainParameters;
+        const { burnedRadius } = geometry;
         
-        const width = grainCanvas.width;
-        const height = grainCanvas.height;
-        const centerX = width / 2;
-        const centerY = height / 2;
-        
-        // Get parameters
-        const outerDiameter = grainParameters.outerDiameter;
-        const innerDiameter = grainParameters.innerDiameter;
-        
-        // Calculate new inner diameter after burn
-        const newInnerDiameter = Math.min(outerDiameter, innerDiameter + 2 * currentBurnRegression);
-        
-        // Calculate scale to fit in canvas
-        const scale = Math.min(width, height) * 0.8 / outerDiameter;
-        
-        // Draw outer circle
+        // Draw outer circle (grain boundary)
         grainCtx.beginPath();
-        grainCtx.arc(centerX, centerY, outerDiameter * scale / 2, 0, Math.PI * 2);
-        grainCtx.fillStyle = colors.primary;
+        grainCtx.arc(centerX, centerY, (outerDiameter / 2) * scale, 0, Math.PI * 2);
+        grainCtx.fillStyle = colors.grain;
         grainCtx.fill();
         
-        // Draw inner circle (if not completely burned through)
-        if (newInnerDiameter < outerDiameter) {
-            grainCtx.beginPath();
-            grainCtx.arc(centerX, centerY, newInnerDiameter * scale / 2, 0, Math.PI * 2);
-            grainCtx.fillStyle = colors.background;
-            grainCtx.fill();
-        }
-        
-        // Draw original inner circle as dashed line
+        // Draw burned area
         grainCtx.beginPath();
-        grainCtx.arc(centerX, centerY, innerDiameter * scale / 2, 0, Math.PI * 2);
-        grainCtx.strokeStyle = colors.secondary;
-        grainCtx.setLineDash([5, 5]);
-        grainCtx.stroke();
-        grainCtx.setLineDash([]);
+        grainCtx.arc(centerX, centerY, burnedRadius * scale, 0, Math.PI * 2);
+        grainCtx.fillStyle = colors.burned;
+        grainCtx.fill();
         
-        // Draw dimension lines
-        drawDimensionLines(centerX, centerY, innerDiameter * scale / 2, newInnerDiameter * scale / 2, 
-                          outerDiameter * scale / 2, colors);
+        // Draw grain pattern based on type
+        switch (grainParameters.shape) {
+            case 'finocyl':
+                drawFinocylPattern(centerX, centerY, scale, colors);
+                break;
+            case 'star':
+                drawStarPattern(centerX, centerY, scale, colors);
+                break;
+        }
     }
     
-    // Draw BATES grain longitudinal view
-    function drawBatesLongitudinal(colors) {
-        if (!grainCtx) return;
+    // Draw longitudinal view
+    function drawLongitudinal(centerX, centerY, scale, geometry, colors) {
+        const { length } = grainParameters;
+        const scaledLength = length * scale;
+        const startX = centerX - scaledLength / 2;
         
-        const width = grainCanvas.width;
-        const height = grainCanvas.height;
-        const centerY = height / 2;
+        // Draw grain outline
+        grainCtx.beginPath();
+        grainCtx.rect(startX, centerY - (grainParameters.outerDiameter / 2) * scale,
+                     scaledLength, grainParameters.outerDiameter * scale);
+        grainCtx.fillStyle = colors.grain;
+        grainCtx.fill();
         
-        // Get parameters
-        const outerDiameter = grainParameters.outerDiameter;
-        const innerDiameter = grainParameters.innerDiameter;
-        const grainLength = grainParameters.length;
-        const segments = grainParameters.segments;
-        
-        // Calculate new inner diameter after burn
-        const newInnerDiameter = Math.min(outerDiameter, innerDiameter + 2 * currentBurnRegression);
-        
-        // Calculate new grain length after burn (end faces burn too)
-        const newLength = Math.max(0, grainLength - 2 * currentBurnRegression);
-        
-        // Calculate scale to fit in canvas
-        const maxDimension = Math.max(outerDiameter, grainLength * segments);
-        const scale = Math.min(width, height) * 0.8 / maxDimension;
-        
-        // Center position
-        const totalLength = grainLength * segments;
-        const startX = (width - totalLength * scale) / 2;
-        
-        // Draw segments
-        const segmentSpacing = 5 * scale; // Space between segments
-        let currentX = startX;
-        
-        for (let i = 0; i < segments; i++) {
-            // Draw outer rectangle
-            grainCtx.fillStyle = colors.primary;
-            grainCtx.fillRect(
-                currentX, 
-                centerY - (outerDiameter * scale) / 2, 
-                grainLength * scale, 
-                outerDiameter * scale
-            );
-            
-            // Draw inner hole (original)
+        // Draw burned area
+        if (geometry.burnedRadius > 0) {
+            grainCtx.beginPath();
+            grainCtx.rect(startX, centerY - geometry.burnedRadius * scale,
+                         scaledLength, geometry.burnedRadius * 2 * scale);
             grainCtx.fillStyle = colors.burned;
-            grainCtx.fillRect(
-                currentX, 
-                centerY - (innerDiameter * scale) / 2, 
-                grainLength * scale, 
-                innerDiameter * scale
-            );
-            
-            // Draw inner hole (after burn)
-            grainCtx.fillStyle = colors.background;
-            grainCtx.fillRect(
-                currentX + currentBurnRegression * scale, 
-                centerY - (newInnerDiameter * scale) / 2, 
-                newLength * scale, 
-                newInnerDiameter * scale
-            );
-            
-            // Draw original inner rectangle as dashed line
-            grainCtx.strokeStyle = colors.secondary;
-            grainCtx.setLineDash([5, 5]);
-            grainCtx.strokeRect(
-                currentX, 
-                centerY - (innerDiameter * scale) / 2, 
-                grainLength * scale, 
-                innerDiameter * scale
-            );
-            grainCtx.setLineDash([]);
-            
-            currentX += grainLength * scale + segmentSpacing;
-        }
-    }
-    
-    // Draw Finocyl grain cross-section
-    function drawFinocylCrossSection(colors) {
-        if (!grainCtx) return;
-        
-        const width = grainCanvas.width;
-        const height = grainCanvas.height;
-        const centerX = width / 2;
-        const centerY = height / 2;
-        
-        // Get parameters
-        const outerDiameter = grainParameters.outerDiameter;
-        const innerDiameter = grainParameters.innerDiameter;
-        const finCount = grainParameters.finCount || 6;
-        const finHeight = grainParameters.finHeight || (outerDiameter - innerDiameter) / 2 * 0.7;
-        const finWidth = grainParameters.finWidth || (Math.PI * innerDiameter / finCount) * 0.4;
-        
-        // Calculate new inner diameter after burn
-        const newInnerDiameter = Math.min(outerDiameter, innerDiameter + 2 * currentBurnRegression);
-        
-        // Calculate new fin dimensions after burn
-        const newFinHeight = Math.max(0, finHeight - currentBurnRegression);
-        const newFinWidth = Math.max(0, finWidth - 2 * currentBurnRegression);
-        
-        // Calculate scale to fit in canvas
-        const scale = Math.min(width, height) * 0.8 / outerDiameter;
-        
-        // Draw outer circle
-        grainCtx.beginPath();
-        grainCtx.arc(centerX, centerY, outerDiameter * scale / 2, 0, Math.PI * 2);
-        grainCtx.fillStyle = colors.primary;
-        grainCtx.fill();
-        
-        // Draw inner circle (if not completely burned through)
-        if (newInnerDiameter < outerDiameter) {
-            grainCtx.beginPath();
-            grainCtx.arc(centerX, centerY, newInnerDiameter * scale / 2, 0, Math.PI * 2);
-            grainCtx.fillStyle = colors.background;
             grainCtx.fill();
-            
-            // Draw fins if they still exist
-            if (newFinHeight > 0 && newFinWidth > 0) {
-                for (let i = 0; i < finCount; i++) {
-                    const angle = (i / finCount) * 2 * Math.PI;
-                    
-                    // Calculate fin points
-                    const innerRadius = newInnerDiameter * scale / 2;
-                    const outerRadius = innerRadius + newFinHeight * scale;
-                    const halfWidth = newFinWidth * scale / 2;
-                    
-                    // Draw fin
-                    grainCtx.beginPath();
-                    grainCtx.moveTo(
-                        centerX + innerRadius * Math.cos(angle - halfWidth / innerRadius),
-                        centerY + innerRadius * Math.sin(angle - halfWidth / innerRadius)
-                    );
-                    grainCtx.lineTo(
-                        centerX + outerRadius * Math.cos(angle),
-                        centerY + outerRadius * Math.sin(angle)
-                    );
-                    grainCtx.lineTo(
-                        centerX + innerRadius * Math.cos(angle + halfWidth / innerRadius),
-                        centerY + innerRadius * Math.sin(angle + halfWidth / innerRadius)
-                    );
-                    grainCtx.closePath();
-                    grainCtx.fillStyle = colors.primary;
-                    grainCtx.fill();
-                }
+        }
+        
+        // Draw segments for BATES grains
+        if (grainParameters.shape === 'bates' && grainParameters.segments > 1) {
+            const segmentLength = scaledLength / grainParameters.segments;
+            for (let i = 1; i < grainParameters.segments; i++) {
+                const x = startX + i * segmentLength;
+                grainCtx.beginPath();
+                grainCtx.moveTo(x, centerY - (grainParameters.outerDiameter / 2) * scale);
+                grainCtx.lineTo(x, centerY + (grainParameters.outerDiameter / 2) * scale);
+                grainCtx.strokeStyle = colors.text;
+                grainCtx.stroke();
             }
         }
-        
-        // Draw dimension lines
-        const outerRadius = outerDiameter * scale / 2;
-        const innerRadius = innerDiameter * scale / 2;
-        const burnedRadius = newInnerDiameter * scale / 2;
-        
-        drawDimensionLines(centerX, centerY, innerRadius, burnedRadius, outerRadius, colors);
-        
-        // Draw fin dimension if fins exist
-        if (newFinHeight > 0) {
-            // Draw fin height dimension
-            const angle = 0; // Use first fin for dimension
-            const innerR = newInnerDiameter * scale / 2;
-            const outerR = innerR + newFinHeight * scale;
-            
-            grainCtx.beginPath();
-            grainCtx.moveTo(centerX + innerR, centerY);
-            grainCtx.lineTo(centerX + outerR, centerY);
-            grainCtx.strokeStyle = colors.secondary;
-            grainCtx.stroke();
-            
-            // Fin height label
-            grainCtx.fillStyle = colors.text;
-            grainCtx.font = '12px "Open Sans", Arial, sans-serif';
-            grainCtx.textAlign = 'center';
-            grainCtx.textBaseline = 'bottom';
-            grainCtx.fillText(
-                `Fin: ${newFinHeight.toFixed(1)}mm`, 
-                centerX + (innerR + outerR) / 2, 
-                centerY - 5
-            );
-        }
     }
     
-    // Draw Finocyl grain longitudinal view
-    function drawFinocylLongitudinal(colors) {
-        if (!grainCtx) return;
+    // Draw dimensions and labels
+    function drawDimensions(centerX, centerY, scale, geometry, colors) {
+        const { outerDiameter, innerDiameter } = grainParameters;
+        const { burnedRadius, webThickness } = geometry;
         
-        const width = grainCanvas.width;
-        const height = grainCanvas.height;
-        const centerX = width / 2;
-        const centerY = height / 2;
-        
-        // Get parameters
-        const outerDiameter = grainParameters.outerDiameter;
-        const innerDiameter = grainParameters.innerDiameter;
-        const grainLength = grainParameters.length;
-        
-        // Calculate burn regression
-        const newInnerDiameter = Math.min(outerDiameter, innerDiameter + 2 * currentBurnRegression);
-        const newLength = Math.max(0, grainLength - 2 * currentBurnRegression);
-        
-        // Calculate scale to fit in canvas
-        const maxDimension = Math.max(outerDiameter, grainLength);
-        const scale = Math.min(width, height) * 0.8 / maxDimension;
-        
-        // Draw outer rectangle (grain)
-        const grainWidth = outerDiameter * scale;
-        const grainHeight = newLength * scale;
-        
-        grainCtx.fillStyle = colors.primary;
-        grainCtx.fillRect(
-            centerX - grainWidth / 2,
-            centerY - grainHeight / 2,
-            grainWidth,
-            grainHeight
-        );
-        
-        // Draw inner hole (if not completely burned through)
-        if (newInnerDiameter < outerDiameter) {
-            const holeWidth = newInnerDiameter * scale;
-            
-            grainCtx.fillStyle = colors.background;
-            grainCtx.fillRect(
-                centerX - holeWidth / 2,
-                centerY - grainHeight / 2,
-                holeWidth,
-                grainHeight
-            );
-        }
-        
-        // Draw dimension lines
-        // Outer diameter
-        grainCtx.beginPath();
-        grainCtx.moveTo(centerX - grainWidth / 2, centerY + grainHeight / 2 + 20);
-        grainCtx.lineTo(centerX + grainWidth / 2, centerY + grainHeight / 2 + 20);
-        grainCtx.strokeStyle = colors.secondary;
-        grainCtx.stroke();
-        
-        // Inner diameter
-        if (newInnerDiameter < outerDiameter) {
-            const holeWidth = newInnerDiameter * scale;
-            
-            grainCtx.beginPath();
-            grainCtx.moveTo(centerX - holeWidth / 2, centerY + grainHeight / 2 + 40);
-            grainCtx.lineTo(centerX + holeWidth / 2, centerY + grainHeight / 2 + 40);
-            grainCtx.strokeStyle = colors.secondary;
-            grainCtx.stroke();
-        }
-        
-        // Length
-        grainCtx.beginPath();
-        grainCtx.moveTo(centerX + grainWidth / 2 + 20, centerY - grainHeight / 2);
-        grainCtx.lineTo(centerX + grainWidth / 2 + 20, centerY + grainHeight / 2);
-        grainCtx.strokeStyle = colors.secondary;
-        grainCtx.stroke();
-        
-        // Labels
+        grainCtx.strokeStyle = colors.dimensions;
         grainCtx.fillStyle = colors.text;
         grainCtx.font = '12px "Open Sans", Arial, sans-serif';
-        grainCtx.textAlign = 'center';
         
-        // Outer diameter label
-        grainCtx.textBaseline = 'top';
-        grainCtx.fillText(
-            `OD: ${outerDiameter.toFixed(1)}mm`,
-            centerX,
-            centerY + grainHeight / 2 + 25
-        );
-        
-        // Inner diameter label
-        if (newInnerDiameter < outerDiameter) {
-            grainCtx.fillText(
-                `ID: ${newInnerDiameter.toFixed(1)}mm`,
-                centerX,
-                centerY + grainHeight / 2 + 45
-            );
+        if (viewMode === 'cross-section') {
+            // Draw diameter lines and labels
+            drawDimensionLine(centerX - outerDiameter * scale / 2, centerY,
+                            centerX + outerDiameter * scale / 2, centerY,
+                            `OD: ${outerDiameter.toFixed(1)} mm`);
+            
+            if (!geometry.isCompletelyBurned) {
+                drawDimensionLine(centerX - burnedRadius * scale, centerY - 20,
+                                centerX + burnedRadius * scale, centerY - 20,
+                                `Burned: ${(burnedRadius * 2).toFixed(1)} mm`);
+                
+                // Draw web thickness
+                const webLabel = `Web: ${webThickness.toFixed(1)} mm`;
+                const textWidth = grainCtx.measureText(webLabel).width;
+                grainCtx.fillText(webLabel, centerX - textWidth / 2, centerY + outerDiameter * scale / 2 + 30);
+            }
+        } else {
+            // Draw length dimension
+            const length = grainParameters.length;
+            drawDimensionLine(centerX - length * scale / 2, centerY + outerDiameter * scale / 2 + 20,
+                            centerX + length * scale / 2, centerY + outerDiameter * scale / 2 + 20,
+                            `Length: ${length.toFixed(1)} mm`);
         }
-        
-        // Length label
-        grainCtx.textBaseline = 'middle';
-        grainCtx.textAlign = 'left';
-        grainCtx.fillText(
-            `Length: ${newLength.toFixed(1)}mm`,
-            centerX + grainWidth / 2 + 25,
-            centerY
-        );
     }
     
-    // Draw Star grain cross-section (placeholder)
-    function drawStarCrossSection(colors) {
-        if (!grainCtx) return;
+    // Helper function to draw dimension lines
+    function drawDimensionLine(x1, y1, x2, y2, label) {
+        const arrowSize = 5;
         
-        const width = grainCanvas.width;
-        const height = grainCanvas.height;
-        
-        // Placeholder message
-        grainCtx.fillStyle = colors.text;
-        grainCtx.font = '16px "Open Sans", Arial, sans-serif';
-        grainCtx.textAlign = 'center';
-        grainCtx.textBaseline = 'middle';
-        grainCtx.fillText('Star grain visualization coming soon', width / 2, height / 2);
-    }
-    
-    // Draw Star grain longitudinal view (placeholder)
-    function drawStarLongitudinal(colors) {
-        if (!grainCtx) return;
-        
-        const width = grainCanvas.width;
-        const height = grainCanvas.height;
-        
-        // Placeholder message
-        grainCtx.fillStyle = colors.text;
-        grainCtx.font = '16px "Open Sans", Arial, sans-serif';
-        grainCtx.textAlign = 'center';
-        grainCtx.textBaseline = 'middle';
-        grainCtx.fillText('Star longitudinal view coming soon', width / 2, height / 2);
-    }
-    
-    // Draw Custom grain (placeholder)
-    function drawCustomGrain(colors) {
-        if (!grainCtx) return;
-        
-        const width = grainCanvas.width;
-        const height = grainCanvas.height;
-        
-        // Placeholder message
-        grainCtx.fillStyle = colors.text;
-        grainCtx.font = '16px "Open Sans", Arial, sans-serif';
-        grainCtx.textAlign = 'center';
-        grainCtx.textBaseline = 'middle';
-        grainCtx.fillText('Custom grain visualization requires DXF upload', width / 2, height / 2);
-    }
-    
-    // Draw dimension lines for cross-section view
-    function drawDimensionLines(centerX, centerY, innerRadius, burnedRadius, outerRadius, colors) {
-        if (!grainCtx) return;
-        
-        // Draw dimension line from center to inner radius
+        // Draw line
         grainCtx.beginPath();
-        grainCtx.moveTo(centerX, centerY);
-        grainCtx.lineTo(centerX + innerRadius, centerY);
-        grainCtx.strokeStyle = colors.secondary;
+        grainCtx.moveTo(x1, y1);
+        grainCtx.lineTo(x2, y2);
         grainCtx.stroke();
         
-        // Draw dimension line from inner radius to burned radius
-        if (burnedRadius > innerRadius) {
-            grainCtx.beginPath();
-            grainCtx.moveTo(centerX + innerRadius, centerY);
-            grainCtx.lineTo(centerX + burnedRadius, centerY);
-            grainCtx.strokeStyle = colors.burned;
-            grainCtx.stroke();
-        }
-        
-        // Draw dimension line from burned radius to outer radius
+        // Draw arrows
         grainCtx.beginPath();
-        grainCtx.moveTo(centerX + burnedRadius, centerY);
-        grainCtx.lineTo(centerX + outerRadius, centerY);
-        grainCtx.strokeStyle = colors.primary;
+        grainCtx.moveTo(x1, y1);
+        grainCtx.lineTo(x1 + arrowSize, y1 - arrowSize);
+        grainCtx.moveTo(x1, y1);
+        grainCtx.lineTo(x1 + arrowSize, y1 + arrowSize);
         grainCtx.stroke();
         
-        // Draw dimension labels
-        grainCtx.fillStyle = colors.text;
-        grainCtx.font = '12px "Open Sans", Arial, sans-serif';
-        grainCtx.textAlign = 'center';
-        grainCtx.textBaseline = 'bottom';
+        grainCtx.beginPath();
+        grainCtx.moveTo(x2, y2);
+        grainCtx.lineTo(x2 - arrowSize, y2 - arrowSize);
+        grainCtx.moveTo(x2, y2);
+        grainCtx.lineTo(x2 - arrowSize, y2 + arrowSize);
+        grainCtx.stroke();
         
-        // Inner diameter label
-        grainCtx.fillText(
-            `ID: ${grainParameters.innerDiameter.toFixed(1)}mm`, 
-            centerX + innerRadius / 2, 
-            centerY - 5
-        );
-        
-        // Burned diameter label
-        if (burnedRadius > innerRadius) {
-            grainCtx.fillText(
-                `Burned: ${(burnedRadius * 2 / outerRadius * grainParameters.outerDiameter).toFixed(1)}mm`, 
-                centerX + (innerRadius + burnedRadius) / 2, 
-                centerY - 5
-            );
-        }
-        
-        // Outer diameter label
-        grainCtx.fillText(
-            `OD: ${grainParameters.outerDiameter.toFixed(1)}mm`, 
-            centerX + (burnedRadius + outerRadius) / 2, 
-            centerY - 5
-        );
+        // Draw label
+        const textWidth = grainCtx.measureText(label).width;
+        grainCtx.fillText(label, (x1 + x2) / 2 - textWidth / 2, y1 - 10);
     }
     
-    // Draw legend with burn information
-    function drawLegend(colors) {
-        if (!grainCtx) return;
-        
-        const width = grainCanvas.width;
-        const height = grainCanvas.height;
-        
-        // Draw legend in bottom right
-        const legendX = width - 160;
-        const legendY = height - 100;
-        const legendWidth = 150;
-        const legendHeight = 90;
-        
-        // Legend background
-        grainCtx.fillStyle = colors.background;
-        grainCtx.globalAlpha = 0.8;
-        grainCtx.fillRect(legendX, legendY, legendWidth, legendHeight);
-        grainCtx.globalAlpha = 1.0;
-        
-        // Legend border
-        grainCtx.strokeStyle = colors.text;
-        grainCtx.lineWidth = 1;
-        grainCtx.strokeRect(legendX, legendY, legendWidth, legendHeight);
-        
-        // Legend title
-        grainCtx.fillStyle = colors.text;
-        grainCtx.font = 'bold 12px "Open Sans", Arial, sans-serif';
-        grainCtx.textAlign = 'left';
-        grainCtx.fillText('Burn Progress:', legendX + 10, legendY + 20);
-        
-        // Burn regression value
-        grainCtx.font = '12px "Open Sans", Arial, sans-serif';
-        grainCtx.fillText(`Regression: ${currentBurnRegression.toFixed(1)} mm`, legendX + 10, legendY + 40);
-        
-        // Time value
-        grainCtx.fillText(`Time: ${currentTime.toFixed(2)} s`, legendX + 10, legendY + 60);
-        
-        // View mode
-        grainCtx.fillText(`View: ${viewMode === 'cross-section' ? 'Cross-section' : 'Longitudinal'}`, legendX + 10, legendY + 80);
-    }
-    
-    // Reset visualization
-    function reset() {
-        currentTime = 0;
-        currentBurnRegression = 0;
-        simulationData = null;
-        
-        // Reset time slider
-        const timeSlider = document.getElementById('time-slider');
-        const timeDisplay = document.getElementById('time-display');
-        
-        if (timeSlider) {
-            timeSlider.value = 0;
-            timeSlider.disabled = true;
-        }
-        
-        if (timeDisplay) {
-            timeDisplay.textContent = '0.00s';
-        }
-        
-        // Draw empty state
-        drawEmptyState();
-    }
-    
-    // Initialize on load
+    // Initialize visualization
     initialize();
     
-    // Export functions for use in other modules
+    // Export functions for external use
     window.grainVisualization = {
-        setSimulationData: setSimulationData,
-        updateVisualization: updateVisualization,
-        reset: reset
+        setSimulationData: function(data) {
+            simulationData = data;
+            updateGrainParameters();
+            updateVisualization();
+        },
+        updateBurnRegression: function(regression) {
+            currentBurnRegression = regression;
+            updateVisualization();
+        },
+        reset: function() {
+            currentTime = 0;
+            currentBurnRegression = 0;
+            simulationData = null;
+            updateVisualization();
+        }
     };
 }); 
